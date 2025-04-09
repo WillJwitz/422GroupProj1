@@ -6,6 +6,12 @@ class AbstractServerComponent(ABC):
     # and the server components
     
     @abstractmethod
+    def __init__(self):
+        super().__init__()
+
+
+
+    @abstractmethod
     def boolAuthenticate(self, strUser):
         #func authenticate
         #takes a string, returns boolean (isLoggedIn)
