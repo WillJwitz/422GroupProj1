@@ -1,10 +1,13 @@
 import tkinter as tk
 from guiDevServerComp import guiServerComponent
+import subprocess
+import os
+
 
 class testGui():
     '''Class for test gui'''
     
-    def __init__(self, serverObj):
+    def __init__(self, serverObj: guiServerComponent):
         '''Init func for testGUI
         
         Creates window object and neccessary interaction
@@ -50,9 +53,16 @@ class testGui():
         print("Display PDF")
         # I put this call here to give a starting point
         # for how the interaction would work
-        strPdfPath = self.server.strGetPdfPath("pdfName") # Gets path to pdf from server
-
+        strPdfPath = self.server.strGetPdfPath("/TestDummies/test.pdf") # Gets path to pdf from server
+        print(strPdfPath)
         # Use path from server func to open pdf here
+        cwd = os.getcwd()
+
+        #Open PDF in user's default viewer.
+        subprocess.Popen([cwd+strPdfPath], shell=True)
+
+        
+        
 
     def saveText(self):
         # Function called by save button to save note contents
@@ -71,12 +81,20 @@ class testGui():
         '''
         self.server.boolSendNote(strNoteText)
 
+    def __del__(self):
+        #Destructor to delete the test.txt file after testing.
+        cwd = os.getcwd()
+        path = "/TestDummies/test.txt"
+        if (os.path.isfile(cwd+path)):
+            os.remove(cwd+path)
+
 
 def main():
 
     serverObject = guiServerComponent()
 
     gui = testGui(serverObject)
+    
 
 if __name__ == "__main__":
     main()
