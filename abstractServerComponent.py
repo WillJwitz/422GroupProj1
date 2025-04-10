@@ -10,7 +10,6 @@ class AbstractServerComponent(ABC):
         super().__init__()
 
 
-
     @abstractmethod
     def boolAuthenticate(self, strUser):
         #func authenticate
