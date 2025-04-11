@@ -1,5 +1,7 @@
 import tkinter as tk
+from abstractServerComponent import AbstractServerComponent
 from guiDevServerComp import guiServerComponent
+from dummyServerComponent import DummyServerComponent
 import subprocess
 import os
 
@@ -7,7 +9,7 @@ import os
 class testGui():
     '''Class for test gui'''
     
-    def __init__(self, serverObj: guiServerComponent):
+    def __init__(self, serverObj: AbstractServerComponent):
         '''Init func for testGUI
         
         Creates window object and neccessary interaction
