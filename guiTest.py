@@ -1,7 +1,7 @@
 import tkinter as tk
-from abstractServerComponent import AbstractServerComponent
-from guiDevServerComp import guiServerComponent
-from dummyServerComponent import DummyServerComponent
+from abstractServerComponent import abstract_server_component
+from guiDevServerComp import gui_server_component
+from memoryServerComponent import memory_server_component
 import subprocess
 import os
 
@@ -9,7 +9,7 @@ import os
 class testGui():
     '''Class for test gui'''
     
-    def __init__(self, serverObj: AbstractServerComponent):
+    def __init__(self, serverObj: abstract_server_component):
         '''Init func for testGUI
         
         Creates window object and neccessary interaction
@@ -55,13 +55,17 @@ class testGui():
         print("Display PDF")
         # I put this call here to give a starting point
         # for how the interaction would work
-        strPdfPath = self.server.strGetPdfPath("/TestDummies/test.pdf") # Gets path to pdf from server
-        print(strPdfPath)
+
+        #Kaleo: I added this as a workaround to incorrect test pdf name
+        pdf_name: str = self.server.get_pdfs()[0]
+
+        pdf_path = self.server.get_pdf_path(pdf_name) # Gets path to pdf from server
+        print(pdf_path)
         # Use path from server func to open pdf here
         cwd = os.getcwd()
 
         #Open PDF in user's default viewer.
-        subprocess.Popen([cwd+strPdfPath], shell=True)
+        subprocess.Popen([cwd+pdf_path], shell=True)
 
         
         
@@ -81,7 +85,7 @@ class testGui():
         json pack function to get the json obj and set that off
         to the server after that.
         '''
-        self.server.boolSendNote(strNoteText)
+        self.server.send_note(strNoteText)
 
     def __del__(self):
         #Destructor to delete the test.txt file after testing.
@@ -92,8 +96,8 @@ class testGui():
 
 
 def main():
-
-    serverObject = guiServerComponent()
+    #Kaleo: use a more complete placeholder server component
+    serverObject = memory_server_component()
 
     gui = testGui(serverObject)
     

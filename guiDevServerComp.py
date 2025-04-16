@@ -1,20 +1,21 @@
-from abstractServerComponent import AbstractServerComponent
+from abstractServerComponent import abstract_server_component
 import os
 
-class guiServerComponent(AbstractServerComponent):
+#TODO: this should probably just be deleted now
+class gui_server_component(abstract_server_component):
     #TODO: Mirror missing type hints in the abstract class.
 
     def __init__(self):
         super().__init__()
 
     # All super().--- calls are temporary
-    def boolAuthenticate(self, strUser: str) -> bool:
-        return super().boolAuthenticate(strUser)
+    def authenticate(self, strUser: str) -> bool:
+        return super().authenticate(strUser)
     
-    def listGetPdf(self) -> list[str]:
-        return super().listGetPdf()
+    def get_pdfs(self) -> list[str]:
+        return super().get_pdfs()
     
-    def strGetPdfPath(self, strFileName: str) -> str:
+    def get_pdf_path(self, strFileName: str) -> str:
 
         '''
         Need to fill this in to return path to pdf.
@@ -26,13 +27,13 @@ class guiServerComponent(AbstractServerComponent):
         return strFileName
         #return super().strGetPdfPath(strFileName)
     
-    def listGetNotes(self, strPdf: str):
-        return super().listGetNotes(strPdf)
+    def get_notes(self, strPdf: str):
+        return super().get_notes(strPdf)
     
-    def jsonGetNoteFile(self, strPdf: str, strFile: str):
-        return super().jsonGetNoteFile(strPdf, strFile)
+    def get_note_file(self, strPdf: str, strFile: str):
+        return super().get_note_file(strPdf, strFile)
     
-    def boolSendNote(self, jsonNote) -> bool:
+    def send_note(self, jsonNote) -> bool:
 
         '''
         Need to fill this in to save the note.
@@ -51,4 +52,4 @@ class guiServerComponent(AbstractServerComponent):
         with (open(cwd+path, 'w') as f):
             print(jsonNote, file=f)
         
-        return super().boolSendNote(jsonNote)
+        return super().send_note(jsonNote)
