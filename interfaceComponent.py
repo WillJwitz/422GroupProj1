@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import messagebox
 from memoryServerComponent import memory_server_component
 import subprocess
 import os
@@ -74,11 +75,19 @@ class login(tk.Frame):
         # On server succes:
         # Use main_menu.set_user to change user for that class
         # use self.application to access main_menu
-
         
-        # display main menu
-        # use self.application.show
-        self.application.show(self.application.main_menu)
+        auth = self.application.server.authenticate(user_entered)
+        if (auth):
+            # display main menu
+            # use self.application.show
+            self.application.set_user = user_entered
+            self.application.show(self.application.main_menu)
+        else:
+            #WILL
+            #Not sure if we even want to handle this error, so feel free to change or completely remove the else part.
+            tk.messagebox.showerror("Login Error", "User authentication failed, try again.")
+            raise Exception("Something occured when authenticating.")
+        
         pass
 
 
@@ -154,10 +163,9 @@ class main_menu(tk.Frame):
     def show_pdf(self, event=None):
         # HAYDEN
         # This relies on the pdf_selected() being implemented properly
-        cwd = os.getcwd()
 
         #Open PDF in user's default viewer.
-        subprocess.Popen([cwd+self.pdf_path], shell=True)
+        subprocess.Popen([self.pdf_path], shell=True)
 
     def note_selected(self, event=None):
         note_name = self.note_select.get()
@@ -170,6 +178,14 @@ class main_menu(tk.Frame):
         # HAYDEN
         # Need to set the pdf and pdf_path vars local to main menu here
         # Also need to update note_options using server call
+
+        self.pdf = pdf_name
+        path = self.application.server.get_pdf_path(pdf_name)
+        self.pdf_path = os.getcwd() + path
+        #WILL
+        #This raises an exception right now, but that looks to be aftermath of Sawyer's implementation in the AbSC, so this should work in the future.
+        self.note_options = self.application.server.get_notes(pdf_name)
+        
 
     def set_user(self, name):
         self.current_user = name
