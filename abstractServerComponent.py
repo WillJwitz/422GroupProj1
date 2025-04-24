@@ -16,7 +16,7 @@ class abstract_server_component(ABC):
 
     @abstractmethod
     def get_pdfs(self) -> list[str]:
-        pass
+        return []
 
   
     @abstractmethod
@@ -25,12 +25,12 @@ class abstract_server_component(ABC):
 
     @abstractmethod
     def get_notes(self, pdfName: str) -> list[str]:
-        pass
+        return []
 
     @abstractmethod
     def get_note_file(self, pdfName: str, noteName: str) -> dict[str, Any]:
-        pass
+        return {}
 
     @abstractmethod
-    def send_note(self, pdfName: str, noteName: str, jsonNote) -> bool:
+    def send_note(self, pdfName: str, noteName: str, jsonNote: dict[str, Any]) -> bool:
         pass
