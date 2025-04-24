@@ -65,7 +65,7 @@ class testGui():
         cwd = os.getcwd()
 
         #Open PDF in user's default viewer.
-        subprocess.Popen([cwd+pdf_path], shell=True)
+        subprocess.Popen([cwd+"/"+pdf_path], shell=True)
 
         
         
@@ -97,7 +97,7 @@ class testGui():
 
 def main():
     #Kaleo: use a more complete placeholder server component
-    serverObject = memory_server_component()
+    serverObject = memory_server_component("TestDummies")
 
     gui = testGui(serverObject)
     

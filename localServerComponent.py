@@ -1,15 +1,16 @@
 from abstractServerComponent import abstract_server_component
 import os
 import json
+from typing import Any
 
 class local_server_component(abstract_server_component):
-    def __init__(self, storage_path:str ):
+    def __init__(self, pdfs_path: str, storage_path:str ):
         super().__init__()
         self.data:dict = {}
 
         #TODO: update names when further in project
         self.storage_path:str = storage_path
-        self.pdfs_path:str = "TestDummies"
+        self.pdfs_path:str = pdfs_path
 
         try:
             os.mkdir(self.storage_path)
@@ -61,18 +62,18 @@ class local_server_component(abstract_server_component):
             # split file name
             return [os.path.splitext(file)[0] for file in files]
         except:
-            return []
+            return super().get_notes(strPdf)
     
-    def get_note_file(self, strPdf: str, strFile: str):
+    def get_note_file(self, strPdf: str, strFile: str) -> dict[str, Any]:
         path = self.note_path(strPdf, strFile)
         try:
             f = open(path, "r")
             data:str = f.read()
             return json.loads(data)
         except:
-            return None
+            return super().get_note_file(strPdf, strFile)
     
-    def send_note(self, strPdf: str, strFile: str, json_note) -> bool:
+    def send_note(self, strPdf: str, strFile: str, json_note: dict[str, Any]) -> bool:
         try:
             os.mkdir(self.notes_path(strPdf))
         except:

@@ -35,7 +35,7 @@ def test_two_user(server: abstract_server_component):
 
     server.authenticate("user_2")
     new_data = server.get_note_file(pdf, "notes")
-    assert(new_data == None)
+    assert(new_data == {})
 
     server.authenticate("user_1")
     new_data = server.get_note_file(pdf, "notes")
@@ -53,9 +53,9 @@ def test_component(server_source, name:str):
     print("end testing: "+name)
 
 def main():
-    test_component(lambda: memory_server_component(), "memory server component")
+    test_component(lambda: memory_server_component("TestDummies"), "memory server component")
 
-    test_component(lambda: local_server_component("TestDumps"), "local server component")
+    test_component(lambda: local_server_component("TestDummies","TestDumps"), "local server component")
     shutil.rmtree("TestDumps")
 
 if __name__ == "__main__":
