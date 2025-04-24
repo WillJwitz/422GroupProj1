@@ -1,4 +1,5 @@
 from abstractServerComponent import abstract_server_component
+import copy
 
 class memory_server_component(abstract_server_component):
     def __init__(self):
@@ -9,6 +10,7 @@ class memory_server_component(abstract_server_component):
 
     def authenticate(self, strUser: str) -> bool:
         self.selected = strUser
+        self.data[strUser] = {}
         return True
     
     def get_pdfs(self) -> list[str]:
@@ -41,5 +43,14 @@ class memory_server_component(abstract_server_component):
         return notes[strFile]
     
     def send_note(self, strPdf: str, strFile: str, json_note) -> bool:
-        #TODO: implement this
+        if not self.selected in self.data:
+            return super().get_note_file(strPdf, strFile)
+        
+        noteGroups = self.data[self.selected]
+
+        if not strPdf in noteGroups:
+            noteGroups[strPdf] = {}
+        
+        notes = noteGroups[strPdf]
+        notes[strFile] = copy.deepcopy(json_note)
         return False
