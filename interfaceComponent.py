@@ -168,7 +168,7 @@ class main_menu(tk.Frame):
     def open_note(self, event=None):
         # def get_note_file(self, strPdf: str, strFile: str):
         self.note_json = self.application.server.get_note_file(self.pdf, self.note_name)
-        
+        packed = (self.note_name, self.note_json)
         # init note menu with note_json
 
     def show_pdf(self, event=None):
