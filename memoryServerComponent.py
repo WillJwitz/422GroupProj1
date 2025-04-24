@@ -10,7 +10,8 @@ class memory_server_component(abstract_server_component):
 
     def authenticate(self, strUser: str) -> bool:
         self.selected = strUser
-        self.data[strUser] = {}
+        if not strUser in self.data:
+            self.data[strUser] = {}
         return True
     
     def get_pdfs(self) -> list[str]:

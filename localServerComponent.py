@@ -1,0 +1,87 @@
+from abstractServerComponent import abstract_server_component
+import os
+import json
+
+class local_server_component(abstract_server_component):
+    def __init__(self, storage_path:str ):
+        super().__init__()
+        self.data:dict = {}
+
+        #TODO: update names when further in project
+        self.storage_path:str = storage_path
+        self.pdfs_path:str = "TestDummies"
+
+        try:
+            os.mkdir(self.storage_path)
+        except:
+            pass
+
+        # Filtering only the files.
+        files = [file for file in os.listdir(self.pdfs_path) if os.path.isfile(self.pdfs_path+'/'+file)]
+
+        self.pdfs:dict[str, str] = {}
+
+        for file in files:
+            name = os.path.splitext(file)[0]
+            self.pdfs[name] = self.pdfs_path+'/'+file
+        
+        self.selected:str = ""
+
+    def user_path(self):
+        return self.storage_path + "/" + self.selected
+    
+    def notes_path(self, pdf:str):
+        return self.user_path() + "/" + pdf
+    
+    def note_path(self, pdf:str, note:str):
+        return self.notes_path(pdf) + "/" + note + ".json"
+
+    def authenticate(self, strUser: str) -> bool:
+        self.selected = strUser
+        try:
+            os.mkdir(self.user_path())
+        except:
+            pass
+        return True
+    
+    def get_pdfs(self) -> list[str]:
+        #this is fine if PDFs aren't updated at runtime
+        return list(self.pdfs.keys())
+    
+    def get_pdf_path(self, strFileName: str) -> str:
+        if strFileName in self.pdfs:
+            return self.pdfs[strFileName]
+        else:
+            return super().get_pdf_path(strFileName)
+    
+    def get_notes(self, strPdf: str):
+        #TODO error checking
+        try:
+            files = [file for file in os.listdir(self.notes_path) if os.path.isfile(self.pdfs_path+'/'+file)]
+            # split file name
+            return [os.path.splitext(file)[0] for file in files]
+        except:
+            return []
+    
+    def get_note_file(self, strPdf: str, strFile: str):
+        path = self.note_path(strPdf, strFile)
+        try:
+            f = open(path, "r")
+            data:str = f.read()
+            return json.loads(data)
+        except:
+            return None
+    
+    def send_note(self, strPdf: str, strFile: str, json_note) -> bool:
+        try:
+            os.mkdir(self.notes_path(strPdf))
+        except:
+            pass
+
+        path = self.note_path(strPdf, strFile)
+        try:
+            f = open(path, "w")
+            f.write(json.dumps(json_note))
+            return True
+        except: 
+            return False
