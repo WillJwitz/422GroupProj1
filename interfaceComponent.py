@@ -181,7 +181,7 @@ class main_menu(tk.Frame):
 
         self.pdf = pdf_name
         path = self.application.server.get_pdf_path(pdf_name)
-        self.pdf_path = os.getcwd() + path
+        self.pdf_path = os.getcwd() + "/" + path
         #WILL
         #This raises an exception right now, but that looks to be aftermath of Sawyer's implementation in the AbSC, so this should work in the future.
         self.note_options = self.application.server.get_notes(pdf_name)
@@ -191,7 +191,7 @@ class main_menu(tk.Frame):
         self.current_user = name
 
 def main():
-    serverObject = memory_server_component()
+    serverObject = memory_server_component("TestDummies")
 
     win = app_window(serverObject)
     win.mainloop()

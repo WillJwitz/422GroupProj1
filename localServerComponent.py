@@ -4,13 +4,13 @@ import json
 from typing import Any
 
 class local_server_component(abstract_server_component):
-    def __init__(self, storage_path:str ):
+    def __init__(self, pdfs_path: str, storage_path:str ):
         super().__init__()
         self.data:dict = {}
 
         #TODO: update names when further in project
         self.storage_path:str = storage_path
-        self.pdfs_path:str = "TestDummies"
+        self.pdfs_path:str = pdfs_path
 
         try:
             os.mkdir(self.storage_path)

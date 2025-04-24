@@ -1,11 +1,20 @@
 from abstractServerComponent import abstract_server_component
 import copy
+import os
 
 class memory_server_component(abstract_server_component):
-    def __init__(self):
+    def __init__(self, pdfs_path: str):
         super().__init__()
         self.data = {}
-        self.pdfs = {"test": "/TestDummies/test.pdf"};
+
+        #load pdf paths into dict
+        self.pdfs_path:str = pdfs_path
+        files = [file for file in os.listdir(self.pdfs_path) if os.path.isfile(self.pdfs_path+'/'+file)]
+        self.pdfs:dict[str, str] = {}
+        for file in files:
+            name = os.path.splitext(file)[0]
+            self.pdfs[name] = self.pdfs_path+'/'+file
+        
         self.selected = ""
 
     def authenticate(self, strUser: str) -> bool:
