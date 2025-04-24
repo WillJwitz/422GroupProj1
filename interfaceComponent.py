@@ -15,7 +15,7 @@ class app_window(tk.Tk):
         Child of tk.Tk which is the window class"""
     
 
-    def __init__(self, serverComp):
+    def __init__(self, serverComp, error_message : str = None):
         super().__init__()
 
         self.server = serverComp
@@ -101,7 +101,8 @@ class main_menu(tk.Frame):
 
         self.pdf = "" # str for pdf name
         self.pdf_path = "" # str for pdf path
-        self.note_json = None# var for note json object
+        self.note_name = "" # str for note name
+        self.note_json = None # var for note json object
         
 
         # Configure grid to have top and sidebar margins
@@ -130,18 +131,26 @@ class main_menu(tk.Frame):
         self.note_frame.grid(row=1,column=1,sticky="nsew")
 
         # PDF selector setup
+        self.pdf_selector_frame = tk.Frame(self.note_frame)
+        self.pdf_label = tk.Label(self.pdf_selector_frame, text="Select a PDF file from the dropdown.", font=("Times New Roman", 14))
+        self.pdf_label.pack(fill="both")
         self.pdf_options = self.application.server.get_pdfs()
-        self.pdf_select = ttk.Combobox(self.note_frame, values=self.pdf_options, state="readonly")
-        self.pdf_select.grid(row=0,column=0,padx=50,sticky="ew")
+        self.pdf_select = ttk.Combobox(self.pdf_selector_frame, values=self.pdf_options, state="readonly")
+        self.pdf_select.pack(fill="both")
         self.pdf_select.set("--Select a PDF--")
         self.pdf_select.bind("<<ComboboxSelected>>", self.pdf_selected)
+        self.pdf_selector_frame.grid(row=0, column=0, padx=50, sticky="ew")
 
         # Note selector setup
+        self.note_selector_frame = tk.Frame(self.note_frame)
         self.note_options = []
-        self.note_select = ttk.Combobox(self.note_frame, values=self.note_options, state="read")
-        self.note_select.grid(row=1,column=0,padx=50,sticky="ew")
-        self.note_select.set("Select a PDF First")
+        self.note_label = tk.Label(self.note_selector_frame, text="Select note document, or enter name for new note.", font=("Times New Roman", 14))
+        self.note_label.pack(fill="both")
+        self.note_select = ttk.Combobox(self.note_selector_frame, values=self.note_options, state="normal")
+        self.note_select.pack(fill="both")
+    
         self.note_select.bind("<<ComboboxSelected>>", self.note_selected)
+        self.note_selector_frame.grid(row=1, column=0, padx=50, sticky="ew")
 
         # Button setup
         self.butt_frame = tk.Frame(self.note_frame)
@@ -157,8 +166,10 @@ class main_menu(tk.Frame):
         self.note_button.grid(row=0,column=1,sticky="ew",padx=50)
 
     def open_note(self, event=None):
-        # No GUI right now so this will just pass
-        pass
+        # def get_note_file(self, strPdf: str, strFile: str):
+        self.note_json = self.application.server.get_note_file(self.pdf, self.note_name)
+        
+        # init note menu with note_json
 
     def show_pdf(self, event=None):
         # HAYDEN
@@ -168,8 +179,8 @@ class main_menu(tk.Frame):
         subprocess.Popen([self.pdf_path], shell=True)
 
     def note_selected(self, event=None):
-        note_name = self.note_select.get()
-        print(f"Selected note {note_name}")
+        self.note_name = self.note_select.get()
+        print(f"Selected note {self.note_name}")
 
     def pdf_selected(self, event=None):
         pdf_name = self.pdf_select.get()
@@ -185,6 +196,7 @@ class main_menu(tk.Frame):
         #WILL
         #This raises an exception right now, but that looks to be aftermath of Sawyer's implementation in the AbSC, so this should work in the future.
         self.note_options = self.application.server.get_notes(pdf_name)
+
         
 
     def set_user(self, name):
