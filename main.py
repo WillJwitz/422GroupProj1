@@ -21,7 +21,7 @@ def main():
     if("allow_local" in config and config["allow_local"]):
         server = local_server_component(pdfs_path, "Notes Data")
 
-    win = app_window(server)
+    win = app_window(server, None)
     win.mainloop()
 
 
