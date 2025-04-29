@@ -103,45 +103,63 @@ class note_menu(tk.Frame):
 
         #Grab header, subheader, and body notes from passed dict.
         self.header = self.note["header"]
-        print(self.header)
         self.subheader = self.note["subheader"]
         self.note_body = self.note["note_body"]
 
         #Configure window grid with four rows and one column.
-        self.grid_rowconfigure(0, minsize = 20, weight = 1)
+        self.grid_rowconfigure(0, minsize = 30, weight = 1)
         self.grid_rowconfigure(1, weight = 1)
-        self.grid_rowconfigure(2, weight = 1)
-        self.grid_rowconfigure(3, weight = 1)
+
         self.grid_columnconfigure(0, weight = 1)
+        self.grid_columnconfigure(1, weight = 2)
+        self.grid_columnconfigure(2, weight = 1)
+
+        #Create a label for top row (note name?)
+        note_words = f"Editing {self.note_name}"
+        self.note_label = tk.Label(self, text=note_words, font = ('Times New Roman', 18))
+
+        self.note_label.grid_rowconfigure(0, weight = 1)
+        self.note_label.grid_columnconfigure(0, weight = 1)
+        self.note_label.grid(row=0, column=1)
+        
+        
+        #Create container for text fields.
+        self.text_container = tk.Frame(self)
+
+        self.text_container.grid_columnconfigure(0, weight = 1)
+        self.text_container.grid_rowconfigure(0, weight = 1)
+        self.text_container.grid_rowconfigure(1, weight = 1)
+        self.text_container.grid_rowconfigure(2, weight = 1)
+        self.text_container.grid(row=1, column=1, sticky="nsew")
 
         #Create header text area, configure, and load text.
-        self.header_field = tk.Text(self.container, font = ('Times New Roman', 10))
+        self.header_field = tk.Text(self.text_container, font = ('Times New Roman', 10))
 
         self.header_field.insert(tk.END, self.header)
         self.header_field.grid_rowconfigure(0, weight=1)
         self.header_field.grid_columnconfigure(0, weight=1)
-        self.header_field.grid(row=1,column=0,sticky="nsew")
+        self.header_field.grid(row=0,column=0,sticky="nsew")
+
 
         #Create subheader text area, etc.
-        self.subheader_field = tk.Text(self.container)
+        self.subheader_field = tk.Text(self.text_container, font = ('Times New Roman', 10))
 
         self.subheader_field.insert(tk.END, self.subheader)
         self.subheader_field.grid_rowconfigure(0, weight=1)
         self.subheader_field.grid_columnconfigure(0, weight=1)
-        self.subheader_field.grid(row=2,column=0,sticky="nsew")
+        self.subheader_field.grid(row=1,column=0,sticky="nsew")
 
         #Create note text area, etc.
-        self.note_field = tk.Text(self.container)
+        self.note_field = tk.Text(self.text_container, font = ('Times New Roman', 10))
         
         self.note_field.insert(tk.END, self.note_body)
         self.note_field.grid_rowconfigure(0, weight=1)
         self.note_field.grid_columnconfigure(0, weight=1)
-        self.note_field.grid(row=3,column=0,sticky="nsew")
+        self.note_field.grid(row=2,column=0,sticky="nsew")
 
         #WILL
         #This is what I came up with in the time I had after the meeting.
         #Hopefully this skeleton helps.
-        #I don't really know why the note fields are going off screen.
         #Let me know when/if there's anything else I can do here.
     
 
