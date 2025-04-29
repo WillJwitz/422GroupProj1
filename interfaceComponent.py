@@ -89,7 +89,61 @@ class login(tk.Frame):
             raise Exception("Something occured when authenticating.")
         
         pass
+    
+class note_menu(tk.Frame):
+    def __init__(self, container, app, note: tuple):
+        super().__init__(container)
+        self.application = app
+        self.container = container
 
+        #Separate note file name and dict containing notes.
+        self.note = note[1]
+        self.note_name = note[0]
+
+
+        #Grab header, subheader, and body notes from passed dict.
+        self.header = self.note["header"]
+        print(self.header)
+        self.subheader = self.note["subheader"]
+        self.note_body = self.note["note_body"]
+
+        #Configure window grid with four rows and one column.
+        self.grid_rowconfigure(0, minsize = 20, weight = 1)
+        self.grid_rowconfigure(1, weight = 1)
+        self.grid_rowconfigure(2, weight = 1)
+        self.grid_rowconfigure(3, weight = 1)
+        self.grid_columnconfigure(0, weight = 1)
+
+        #Create header text area, configure, and load text.
+        self.header_field = tk.Text(self.container, font = ('Times New Roman', 10))
+
+        self.header_field.insert(tk.END, self.header)
+        self.header_field.grid_rowconfigure(0, weight=1)
+        self.header_field.grid_columnconfigure(0, weight=1)
+        self.header_field.grid(row=1,column=0,sticky="nsew")
+
+        #Create subheader text area, etc.
+        self.subheader_field = tk.Text(self.container)
+
+        self.subheader_field.insert(tk.END, self.subheader)
+        self.subheader_field.grid_rowconfigure(0, weight=1)
+        self.subheader_field.grid_columnconfigure(0, weight=1)
+        self.subheader_field.grid(row=2,column=0,sticky="nsew")
+
+        #Create note text area, etc.
+        self.note_field = tk.Text(self.container)
+        
+        self.note_field.insert(tk.END, self.note_body)
+        self.note_field.grid_rowconfigure(0, weight=1)
+        self.note_field.grid_columnconfigure(0, weight=1)
+        self.note_field.grid(row=3,column=0,sticky="nsew")
+
+        #WILL
+        #This is what I came up with in the time I had after the meeting.
+        #Hopefully this skeleton helps.
+        #I don't really know why the note fields are going off screen.
+        #Let me know when/if there's anything else I can do here.
+    
 
 class main_menu(tk.Frame):
     def __init__(self, container, app):
@@ -98,11 +152,13 @@ class main_menu(tk.Frame):
         super().__init__(container)
         self.application = app
         self.current_user = "temp"
+        self.container = container
 
         self.pdf = "" # str for pdf name
         self.pdf_path = "" # str for pdf path
         self.note_name = "" # str for note name
         self.note_json = None # var for note json object
+        self.note_menu = None # note_menu obj to be filled by open_note
         
 
         # Configure grid to have top and sidebar margins
@@ -168,8 +224,19 @@ class main_menu(tk.Frame):
     def open_note(self, event=None):
         # def get_note_file(self, strPdf: str, strFile: str):
         self.note_json = self.application.server.get_note_file(self.pdf, self.note_name)
+        #Placeholder because I just want to test GUI.
+        if (True):
+            #Don't know how to do the check for a new file, so please implement.
+            self.note_name = "test"
+            self.note_json["header"] = "header_test"
+            self.note_json["subheader"] = "subheader_test"
+            self.note_json["note_body"] = "note_body_test"
         packed = (self.note_name, self.note_json)
         # init note menu with note_json
+        self.note_menu = note_menu(self.container, self.application, packed)
+        self.note_menu.grid(row=0, column=0, sticky="nsew")
+        self.application.show(self.note_menu)
+        
 
     def show_pdf(self, event=None):
         # HAYDEN
