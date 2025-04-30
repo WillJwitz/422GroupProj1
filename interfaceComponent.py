@@ -106,22 +106,45 @@ class note_menu(tk.Frame):
         self.subheader = self.note["subheader"]
         self.note_body = self.note["note_body"]
 
+        #Font Sizes
+        self.header_size = 15
+        self.subheader_size = 13
+        self.note_body_size = 10
+
         #Configure window grid with four rows and one column.
         self.grid_rowconfigure(0, minsize = 30, weight = 1)
         self.grid_rowconfigure(1, weight = 1)
 
-        self.grid_columnconfigure(0, weight = 1)
+        self.grid_columnconfigure(0, minsize = 20, weight = 1)
         self.grid_columnconfigure(1, weight = 2)
-        self.grid_columnconfigure(2, weight = 1)
+        self.grid_columnconfigure(2, minsize = 20, weight = 1)
+
+        #Create a scrollbar.
+
+        #WILL
+        #Not sure how to get this to scroll properly, so I'll leave that to you.
+        #Same with the decision on whether we even want to scroll.
+        self.scroll = tk.Scrollbar(self, orient=tk.VERTICAL)
+
+        self.scroll.grid(row=0, column=2, rowspan=3, sticky="nse")
 
         #Create a label for top row (note name?)
+        
+        #WILL
+        #Label area blows up really large when full-screening.
         note_words = f"Editing {self.note_name}"
         self.note_label = tk.Label(self, text=note_words, font = ('Times New Roman', 18))
 
         self.note_label.grid_rowconfigure(0, weight = 1)
         self.note_label.grid_columnconfigure(0, weight = 1)
         self.note_label.grid(row=0, column=1)
-        
+
+        #Create Save Button
+
+        #Looks strange when small and messes with other elements.  Really just a placeholder until you get to it.
+        self.save_butt = tk.Button(self, width = 6, text = "SAVE", font = ('Times New Roman', 18))
+
+        self.save_butt.grid(row = 2, column = 0, sticky="s")
         
         #Create container for text fields.
         self.text_container = tk.Frame(self)
@@ -133,7 +156,7 @@ class note_menu(tk.Frame):
         self.text_container.grid(row=1, column=1, sticky="nsew")
 
         #Create header text area, configure, and load text.
-        self.header_field = tk.Text(self.text_container, font = ('Times New Roman', 10))
+        self.header_field = tk.Text(self.text_container, height = 1, font = ('Times New Roman', self.header_size))
 
         self.header_field.insert(tk.END, self.header)
         self.header_field.grid_rowconfigure(0, weight=1)
@@ -142,7 +165,7 @@ class note_menu(tk.Frame):
 
 
         #Create subheader text area, etc.
-        self.subheader_field = tk.Text(self.text_container, font = ('Times New Roman', 10))
+        self.subheader_field = tk.Text(self.text_container, height = 1 , font = ('Times New Roman', self.subheader_size))
 
         self.subheader_field.insert(tk.END, self.subheader)
         self.subheader_field.grid_rowconfigure(0, weight=1)
@@ -150,7 +173,7 @@ class note_menu(tk.Frame):
         self.subheader_field.grid(row=1,column=0,sticky="nsew")
 
         #Create note text area, etc.
-        self.note_field = tk.Text(self.text_container, font = ('Times New Roman', 10))
+        self.note_field = tk.Text(self.text_container, font = ('Times New Roman', self.note_body_size))
         
         self.note_field.insert(tk.END, self.note_body)
         self.note_field.grid_rowconfigure(0, weight=1)
@@ -161,6 +184,8 @@ class note_menu(tk.Frame):
         #This is what I came up with in the time I had after the meeting.
         #Hopefully this skeleton helps.
         #Let me know when/if there's anything else I can do here.
+        #A lot of this stuff is just estimates of how I think stuff will look.
+            #You have more tkinter experience, so just edit as much as you want.
     
 
 class main_menu(tk.Frame):
