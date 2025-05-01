@@ -20,19 +20,18 @@ class config_handler():
         return data
     
     def create_config(self):
-        default = {}
-        for k in self.cfgs:
-            default[k] = self.cfgs[k][1]
+        default = self.fill_defaults({})
         json.dump(default, open(self.path, "w"), indent=4)
     
     def get_or_create(self):
         if(os.path.isfile(self.path)):
             try:
-                return self.fill_defaults(json.load(open(self.path, "r")))
+                data = json.load(open(self.path, "r"))
+                data = self.fill_defaults(data)
+                json.dump(data, open(self.path, "w"), indent=4)
+                return data
             except:
-                default = {}
-                for k in self.cfgs:
-                    default[k] = self.cfgs[k][1]
+                default = self.fill_defaults({})
                 return default
         else:
             self.create_config()
@@ -46,8 +45,13 @@ def main():
     server:abstract_server_component = memory_server_component(pdfs_path)
 
     config_helper.add("allow_local", bool, True)
+    config_helper.add("server_ip", str, f"20.253.140.74:27017")
 
     config = config_helper.get_or_create()
+
+    print("server ip: ")
+    print(config["server_ip"])
+    print("WARNING: servers not implemented yet!")
 
     if(config["allow_local"]):
         print("saving data locally")
