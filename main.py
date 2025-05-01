@@ -50,6 +50,7 @@ def main():
     config = config_helper.get_or_create()
 
     if(config["allow_local"]):
+        print("saving data locally")
         server = local_server_component(pdfs_path, "Notes Data")
 
     win = app_window(server, None)

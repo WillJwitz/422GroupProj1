@@ -58,10 +58,16 @@ class local_server_component(abstract_server_component):
     def get_notes(self, strPdf: str):
         #TODO error checking
         try:
-            files = [file for file in os.listdir(self.notes_path) if os.path.isfile(self.pdfs_path+'/'+file)]
+            print(self.notes_path(strPdf))
+            path = self.notes_path(strPdf)
+            files = [file for file in os.listdir(path) if os.path.isfile(path+'/'+file)]
+            print("files: ")
+            [print(file) for file in files]
             # split file name
             return [os.path.splitext(file)[0] for file in files]
-        except:
+        except IOError as e: 
+            print("error finding notes")
+            print(e)
             return super().get_notes(strPdf)
     
     def get_note_file(self, strPdf: str, strFile: str) -> dict[str, Any]:

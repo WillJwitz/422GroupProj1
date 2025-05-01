@@ -104,6 +104,7 @@ class note_menu(tk.Frame):
         #Separate note file name and dict containing notes.
         self.note = note[1] # dict
         self.note_name = note[0] # str
+        self.pdf = note[2] # str
 
 
         #Grab header, subheader, and body notes from passed dict.
@@ -144,7 +145,7 @@ class note_menu(tk.Frame):
         #Create Save Button
 
         #Looks strange when small and messes with other elements.  Really just a placeholder until you get to it.
-        self.save_butt = tk.Button(self, text = "SAVE", font = ('Times New Roman', 5))
+        self.save_butt = tk.Button(self, text = "SAVE", font = ('Times New Roman', 5), command=self.save)
 
         self.save_butt.grid(row = 1, column = 0)
         
@@ -176,6 +177,20 @@ class note_menu(tk.Frame):
         #Let me know when/if there's anything else I can do here.
         #A lot of this stuff is just estimates of how I think stuff will look.
             #You have more tkinter experience, so just edit as much as you want.
+    
+    def save(self, event = None):
+        note = {}
+        note["header"] = self.header_field.get()
+        note["subheader"] = self.subheader_field.get()
+        note["note_body"] = self.note_field.get('1.0', 'end-1c')
+
+        server = self.application.server
+        server.send_note(self.pdf, self.note_name, note)
+        print("note saved")
+
+        #go back to previous menu
+        self.destroy()
+        pass
     
 class main_menu(tk.Frame):
     def __init__(self, container, app):
@@ -260,18 +275,17 @@ class main_menu(tk.Frame):
             if self.note_name != "": # pickup when no note name selected or entered
                 self.note_dict = self.application.server.get_note_file(self.pdf, self.note_name) # get note dict, creates new if note does not exist
                 if "header" not in self.note_dict:
-
+                    
                     self.note_dict["header"] = "Header"
                     self.note_dict["subheader"] = "Subheader"
                     self.note_dict["note_body"] = "Note text"
 
-                    
-                    packed = (self.note_name, self.note_dict)
+                packed = (self.note_name, self.note_dict, self.pdf)
 
-                    # init note menu with note_json
-                    self.note_menu = note_menu(self.container, self.application, packed)
-                    self.note_menu.grid(row=0, column=0, sticky="nsew")
-                    self.application.show(self.note_menu)
+                # init note menu with note_json
+                self.note_menu = note_menu(self.container, self.application, packed)
+                self.note_menu.grid(row=0, column=0, sticky="nsew")
+                self.application.show(self.note_menu)
             else:
                 print("Invalid note name.")
         else:
@@ -298,6 +312,8 @@ class main_menu(tk.Frame):
         self.pdf_path = os.getcwd() + "/" + path # proper formatting
         
         self.note_options = self.application.server.get_notes(pdf_name) # load list of associated notes
+        print("note options: ")
+        [print(x) for x in self.note_options]
         self.note_select.config(values=self.note_options) # ensure list is reset
 
     def set_user(self, name):
