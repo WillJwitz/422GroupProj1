@@ -189,6 +189,7 @@ class note_menu(tk.Frame):
         print("note saved")
 
         #go back to previous menu
+        self.application.show(self.application.main_menu)
         self.destroy()
         pass
     
