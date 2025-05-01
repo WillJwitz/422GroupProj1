@@ -249,7 +249,7 @@ class main_menu(tk.Frame):
         self.header.grid(row=0,column=1,sticky="ew")
 
         # Menu button setup and display
-        self.menu_graphic = tk.PhotoImage(file="Assets\\Menu\\menuButton.png")
+        self.menu_graphic = tk.PhotoImage(file=os.path.join("Assets", "Menu", "menuButton.png"))
         self.menu_graphic = self.menu_graphic.subsample(4,4)
         self.logout_button = tk.Button(self, image=self.menu_graphic)
         self.logout_button.grid(row=0,column=0)
