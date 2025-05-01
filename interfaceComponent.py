@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
-from memoryServerComponent import memory_server_component
+from localServerComponent import local_server_component
 import subprocess
 import os
 
@@ -44,20 +44,25 @@ class app_window(tk.Tk):
     def show(self, screen):
         screen.tkraise()
 
-
 class login(tk.Frame):
     def __init__(self, container, app):
         super().__init__(container)
         self.application = app
 
+        # Frame for objects to sit in, helps to center
         self.entry_field = tk.Frame(self)
 
-        self.prompt = tk.Label(self.entry_field, text="Enter Username")
+        # Label to prompt user selection
+        self.prompt = tk.Label(self.entry_field, text="Select User")
         self.prompt.pack()
 
         self.username = ""
-        self.user_field = tk.Entry(self.entry_field,textvariable=self.username )
+        self.user_opt = ["Student1", "Student2", "Student3"]
+        self.user_field = ttk.Combobox(self.entry_field, values=self.user_opt, state="readonly")
         self.user_field.pack()
+
+        self.login_butt = tk.Button(self.entry_field, text="Login", command=self.submit_user)
+        self.login_butt.pack()
 
         self.error = tk.Label(self.entry_field, text="")
         self.error.pack()
@@ -68,7 +73,7 @@ class login(tk.Frame):
         self.user_field.focus_set()
 
     def submit_user(self, event=None):
-        print("ENTER")
+        
         user_entered = self.user_field.get()
         # HAYDEN
         # Use servercomponent to set user and get boolean
@@ -80,12 +85,12 @@ class login(tk.Frame):
         if (auth):
             # display main menu
             # use self.application.show
-            self.application.set_user = user_entered
+            self.application.main_menu.set_user(user_entered)
             self.application.show(self.application.main_menu)
         else:
             #WILL
             #Not sure if we even want to handle this error, so feel free to change or completely remove the else part.
-            tk.messagebox.showerror("Login Error", "User authentication failed, try again.")
+            self.error.config(text="Login Error, User authentication failed, try again.")
             raise Exception("Something occured when authenticating.")
         
         pass
@@ -97,8 +102,8 @@ class note_menu(tk.Frame):
         self.container = container
 
         #Separate note file name and dict containing notes.
-        self.note = note[1]
-        self.note_name = note[0]
+        self.note = note[1] # dict
+        self.note_name = note[0] # str
 
 
         #Grab header, subheader, and body notes from passed dict.
@@ -107,26 +112,25 @@ class note_menu(tk.Frame):
         self.note_body = self.note["note_body"]
 
         #Font Sizes
-        self.header_size = 15
-        self.subheader_size = 13
-        self.note_body_size = 10
+        self.header_size = 18
+        self.subheader_size = 15
+        self.note_body_size = 12
 
         #Configure window grid with four rows and one column.
         self.grid_rowconfigure(0, minsize = 30, weight = 1)
         self.grid_rowconfigure(1, weight = 1)
-
         self.grid_columnconfigure(0, minsize = 20, weight = 1)
-        self.grid_columnconfigure(1, weight = 2)
-        self.grid_columnconfigure(2, minsize = 20, weight = 1)
+        self.grid_columnconfigure(1, weight = 1)
+
 
         #Create a scrollbar.
-
-        #WILL
+        """ #WILL
         #Not sure how to get this to scroll properly, so I'll leave that to you.
         #Same with the decision on whether we even want to scroll.
         self.scroll = tk.Scrollbar(self, orient=tk.VERTICAL)
 
-        self.scroll.grid(row=0, column=2, rowspan=3, sticky="nse")
+        self.scroll.grid(row=0, column=2, rowspan=3, sticky="nse")"""
+       
 
         #Create a label for top row (note name?)
         
@@ -187,7 +191,6 @@ class note_menu(tk.Frame):
         #A lot of this stuff is just estimates of how I think stuff will look.
             #You have more tkinter experience, so just edit as much as you want.
     
-
 class main_menu(tk.Frame):
     def __init__(self, container, app):
 
@@ -200,7 +203,7 @@ class main_menu(tk.Frame):
         self.pdf = "" # str for pdf name
         self.pdf_path = "" # str for pdf path
         self.note_name = "" # str for note name
-        self.note_json = None # var for note json object
+        self.note_dict = None # var for note dict object
         self.note_menu = None # note_menu obj to be filled by open_note
         
 
@@ -265,55 +268,58 @@ class main_menu(tk.Frame):
         self.note_button.grid(row=0,column=1,sticky="ew",padx=50)
 
     def open_note(self, event=None):
-        # def get_note_file(self, strPdf: str, strFile: str):
-        self.note_json = self.application.server.get_note_file(self.pdf, self.note_name)
-        #Placeholder because I just want to test GUI.
-        if (True):
-            #Don't know how to do the check for a new file, so please implement.
-            self.note_name = "test"
-            self.note_json["header"] = "header_test"
-            self.note_json["subheader"] = "subheader_test"
-            self.note_json["note_body"] = "note_body_test"
-        packed = (self.note_name, self.note_json)
-        # init note menu with note_json
-        self.note_menu = note_menu(self.container, self.application, packed)
-        self.note_menu.grid(row=0, column=0, sticky="nsew")
-        self.application.show(self.note_menu)
-        
+
+        self.note_name = self.note_select.get().strip()
+        if self.pdf != "": # cant open note w/o a pdf to associate
+            if self.note_name != "": # pickup when no note name selected or entered
+                self.note_dict = self.application.server.get_note_file(self.pdf, self.note_name) # get note dict, creates new if note does not exist
+                if "header" not in self.note_dict:
+
+                    self.note_dict["header"] = "Header"
+                    self.note_dict["subheader"] = "Subheader"
+                    self.note_dict["note_body"] = "Note text"
+
+                    
+                    packed = (self.note_name, self.note_dict)
+
+                    # init note menu with note_json
+                    self.note_menu = note_menu(self.container, self.application, packed)
+                    self.note_menu.grid(row=0, column=0, sticky="nsew")
+                    self.application.show(self.note_menu)
+            else:
+                print("Invalid note name.")
+        else:
+            print("No pdf selected. Not opening note.")
 
     def show_pdf(self, event=None):
-        # HAYDEN
-        # This relies on the pdf_selected() being implemented properly
-
         #Open PDF in user's default viewer.
-        subprocess.Popen([self.pdf_path], shell=True)
+        if self.pdf_path != "":
+            subprocess.Popen([self.pdf_path], shell=True)
+        else:
+            print("No pdf selected.")
 
     def note_selected(self, event=None):
         self.note_name = self.note_select.get()
         print(f"Selected note {self.note_name}")
 
     def pdf_selected(self, event=None):
+        # get selected pdf
         pdf_name = self.pdf_select.get()
-        print(f"Selected {pdf_name}")
+        print(f"Selected {pdf_name}") # debug log
 
-        # HAYDEN
-        # Need to set the pdf and pdf_path vars local to main menu here
-        # Also need to update note_options using server call
-
-        self.pdf = pdf_name
-        path = self.application.server.get_pdf_path(pdf_name)
-        self.pdf_path = os.getcwd() + "/" + path
-        #WILL
-        #This raises an exception right now, but that looks to be aftermath of Sawyer's implementation in the AbSC, so this should work in the future.
-        self.note_options = self.application.server.get_notes(pdf_name)
-
+        self.pdf = pdf_name # set class var
+        path = self.application.server.get_pdf_path(pdf_name) # get path to selected pdf
+        self.pdf_path = os.getcwd() + "/" + path # proper formatting
         
+        self.note_options = self.application.server.get_notes(pdf_name) # load list of associated notes
+        self.note_select.config(values=self.note_options) # ensure list is reset
 
     def set_user(self, name):
         self.current_user = name
+        self.header.config(text=f"Welcome {self.current_user}. Select a PDF and Note to begin!")
 
 def main():
-    serverObject = memory_server_component("TestDummies")
+    serverObject = local_server_component("TestDummies", "TestStorage")
 
     win = app_window(serverObject)
     win.mainloop()
