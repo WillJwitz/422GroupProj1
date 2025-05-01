@@ -116,10 +116,11 @@ class note_menu(tk.Frame):
         self.subheader_size = 15
         self.note_body_size = 12
 
-        #Configure window grid with four rows and one column.
+        #Configure window grid with two rows and two column.
+        #thin header and left sidebar
         self.grid_rowconfigure(0, minsize = 30, weight = 1)
         self.grid_rowconfigure(1, weight = 1)
-        self.grid_columnconfigure(0, minsize = 20, weight = 1)
+        self.grid_columnconfigure(0, minsize = 40, weight = 1)
         self.grid_columnconfigure(1, weight = 1)
 
 
@@ -137,53 +138,38 @@ class note_menu(tk.Frame):
         #WILL
         #Label area blows up really large when full-screening.
         note_words = f"Editing {self.note_name}"
-        self.note_label = tk.Label(self, text=note_words, font = ('Times New Roman', 18))
-
-        self.note_label.grid_rowconfigure(0, weight = 1)
-        self.note_label.grid_columnconfigure(0, weight = 1)
-        self.note_label.grid(row=0, column=1)
+        self.note_label = tk.Label(self, text=note_words, font = ('Times New Roman', 20))
+        self.note_label.grid(row=0, column=1, sticky="nsew")
 
         #Create Save Button
 
         #Looks strange when small and messes with other elements.  Really just a placeholder until you get to it.
-        self.save_butt = tk.Button(self, width = 6, text = "SAVE", font = ('Times New Roman', 18))
+        self.save_butt = tk.Button(self, text = "SAVE", font = ('Times New Roman', 5))
 
-        self.save_butt.grid(row = 2, column = 0, sticky="s")
+        self.save_butt.grid(row = 1, column = 0)
         
         #Create container for text fields.
         self.text_container = tk.Frame(self)
 
-        self.text_container.grid_columnconfigure(0, weight = 1)
-        self.text_container.grid_rowconfigure(0, weight = 1)
-        self.text_container.grid_rowconfigure(1, weight = 1)
-        self.text_container.grid_rowconfigure(2, weight = 1)
+        self.text_container.grid_rowconfigure(0, weight=0)
+        self.text_container.grid_rowconfigure(1, weight=0)
+        self.text_container.grid_rowconfigure(2, weight=1)
+        self.text_container.grid_columnconfigure(0, weight=1)
         self.text_container.grid(row=1, column=1, sticky="nsew")
 
         #Create header text area, configure, and load text.
-        self.header_field = tk.Text(self.text_container, height = 1, font = ('Times New Roman', self.header_size))
-
+        self.header_field = tk.Entry(self.text_container, font=('Times New Roman', self.header_size))
         self.header_field.insert(tk.END, self.header)
-        self.header_field.grid_rowconfigure(0, weight=1)
-        self.header_field.grid_columnconfigure(0, weight=1)
-        self.header_field.grid(row=0,column=0,sticky="nsew")
-
+        self.header_field.grid(row=0, column=0, padx=10, pady=5, sticky="ew")
 
         #Create subheader text area, etc.
-        self.subheader_field = tk.Text(self.text_container, height = 1 , font = ('Times New Roman', self.subheader_size))
-
+        self.subheader_field = tk.Entry(self.text_container, font=('Times New Roman', self.subheader_size))
         self.subheader_field.insert(tk.END, self.subheader)
-        self.subheader_field.grid_rowconfigure(0, weight=1)
-        self.subheader_field.grid_columnconfigure(0, weight=1)
-        self.subheader_field.grid(row=1,column=0,sticky="nsew")
+        self.subheader_field.grid(row=1, column=0, padx=10, pady=5, sticky="ew")
 
-        #Create note text area, etc.
-        self.note_field = tk.Text(self.text_container, font = ('Times New Roman', self.note_body_size))
-        
+        self.note_field = tk.Text(self.text_container, font=('Times New Roman', self.note_body_size), wrap="word", height=10)
         self.note_field.insert(tk.END, self.note_body)
-        self.note_field.grid_rowconfigure(0, weight=1)
-        self.note_field.grid_columnconfigure(0, weight=1)
-        self.note_field.grid(row=2,column=0,sticky="nsew")
-
+        self.note_field.grid(row=2, column=0, padx=10, pady=5, sticky="nsew")
         #WILL
         #This is what I came up with in the time I had after the meeting.
         #Hopefully this skeleton helps.
