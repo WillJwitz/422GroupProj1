@@ -43,6 +43,9 @@ class app_window(tk.Tk):
 
     def show(self, screen):
         screen.tkraise()
+        if screen == self.main_menu:
+            self.main_menu.selector_reset()
+
 
 class login(tk.Frame):
     def __init__(self, container, app):
@@ -92,8 +95,6 @@ class login(tk.Frame):
             #Not sure if we even want to handle this error, so feel free to change or completely remove the else part.
             self.error.config(text="Login Error, User authentication failed, try again.")
             raise Exception("Something occured when authenticating.")
-        
-        pass
     
 class note_menu(tk.Frame):
     def __init__(self, container, app, note: tuple):
@@ -105,7 +106,7 @@ class note_menu(tk.Frame):
         self.note = note[1] # dict
         self.note_name = note[0] # str
         self.pdf = note[2] # str
-
+        self.pdf_path = note[3] # str
 
         #Grab header, subheader, and body notes from passed dict.
         self.header = self.note["header"]
@@ -119,36 +120,52 @@ class note_menu(tk.Frame):
 
         #Configure window grid with two rows and two column.
         #thin header and left sidebar
-        self.grid_rowconfigure(0, minsize = 30, weight = 1)
+        self.grid_rowconfigure(0, minsize = 60, weight = 0)
         self.grid_rowconfigure(1, weight = 1)
-        self.grid_columnconfigure(0, minsize = 40, weight = 1)
+        self.grid_rowconfigure(2, minsize=30, weight=0)
+        self.grid_columnconfigure(0, minsize = 30, weight = 0)
         self.grid_columnconfigure(1, weight = 1)
-
-
-        #Create a scrollbar.
-        """ #WILL
-        #Not sure how to get this to scroll properly, so I'll leave that to you.
-        #Same with the decision on whether we even want to scroll.
-        self.scroll = tk.Scrollbar(self, orient=tk.VERTICAL)
-
-        self.scroll.grid(row=0, column=2, rowspan=3, sticky="nse")"""
        
+        #Framing for top row to do sq3r tips
+        self.top_frame = tk.Frame(self)
+        self.top_frame.rowconfigure(0, weight=1)
+        self.top_frame.columnconfigure(0, weight=1)
+        self.top_frame.columnconfigure(1, minsize=30)
+        self.top_frame.grid(row=0, column=1, sticky="ew")
 
-        #Create a label for top row (note name?)
-        
-        #WILL
-        #Label area blows up really large when full-screening.
+        #SQ3R tips
+        self.tips_frame = tips(self.top_frame)
+        self.tips_frame.grid(row=0, column=0, sticky="nsew")
+        self.showing = False
+
+        #Header label
         note_words = f"Editing {self.note_name}"
-        self.note_label = tk.Label(self, text=note_words, font = ('Times New Roman', 20))
-        self.note_label.grid(row=0, column=1, sticky="nsew")
+        self.note_label = tk.Label(self.top_frame, text=note_words, font = ('Times New Roman', 20))
+        self.note_label.grid(row=0, column=0, sticky="nsew")
+
+        #SQ3R button
+        self.tips_butt = tk.Button(self.top_frame, text="SQ3R", font=('Times New Roman', 10), command=self.show_tips)
+        self.tips_butt.grid(row=0, column=1, sticky="nsew", padx=5)
+
+        # Bottom bar button frame
+        self.butt_frame = tk.Frame(self)
+        self.butt_frame.rowconfigure(0, weight=1)
+        self.butt_frame.columnconfigure(0, weight=1)
+        self.butt_frame.columnconfigure(1, weight=1)
+        self.butt_frame.grid(row=2, column=1)
+
+        #Create Back Button
+        self.back_button = tk.Button(self, text="BACK", font=('Times New Roman', 10), command=self.back)
+        self.back_button.grid(row=0, column=0, sticky="ew", padx=5)
 
         #Create Save Button
-
-        #Looks strange when small and messes with other elements.  Really just a placeholder until you get to it.
-        self.save_butt = tk.Button(self, text = "SAVE", font = ('Times New Roman', 5), command=self.save)
-
-        self.save_butt.grid(row = 1, column = 0)
+        self.save_butt = tk.Button(self.butt_frame, text = "SAVE", font = ('Times New Roman', 10), command=self.save)
+        self.save_butt.grid(row = 0, column = 0, sticky="nsew")
         
+        #Create PDF Button
+        self.pdf_butt = tk.Button(self.butt_frame, text="PDF", font = ('Times New Roman', 10), command=self.open_pdf)
+        self.pdf_butt.grid(row=0, column=1, sticky="nsew")
+
         #Create container for text fields.
         self.text_container = tk.Frame(self)
 
@@ -168,15 +185,11 @@ class note_menu(tk.Frame):
         self.subheader_field.insert(tk.END, self.subheader)
         self.subheader_field.grid(row=1, column=0, padx=10, pady=5, sticky="ew")
 
+        #Create note field
         self.note_field = tk.Text(self.text_container, font=('Times New Roman', self.note_body_size), wrap="word", height=10)
         self.note_field.insert(tk.END, self.note_body)
         self.note_field.grid(row=2, column=0, padx=10, pady=5, sticky="nsew")
-        #WILL
-        #This is what I came up with in the time I had after the meeting.
-        #Hopefully this skeleton helps.
-        #Let me know when/if there's anything else I can do here.
-        #A lot of this stuff is just estimates of how I think stuff will look.
-            #You have more tkinter experience, so just edit as much as you want.
+
     
     def save(self, event = None):
         note = {}
@@ -188,10 +201,25 @@ class note_menu(tk.Frame):
         server.send_note(self.pdf, self.note_name, note)
         print("note saved")
 
+    def show_tips(self, event=None):
+        if self.showing is True:
+            self.note_label.tkraise()
+            self.showing = False
+        elif self.showing is False:
+            self.tips_frame.tkraise()
+            self.showing = True
+
+    def back(self, event=None):
         #go back to previous menu
         self.application.show(self.application.main_menu)
         self.destroy()
-        pass
+    
+    def open_pdf(self, event=None):
+        #Open PDF in user's default viewer.
+        if self.pdf_path != "":
+            subprocess.Popen([self.pdf_path], shell=True)
+        else:
+            print("No pdf selected.")
     
 class main_menu(tk.Frame):
     def __init__(self, container, app):
@@ -269,6 +297,16 @@ class main_menu(tk.Frame):
         self.note_button = tk.Button(self.butt_frame, text="Open Note", command=self.open_note)
         self.note_button.grid(row=0,column=1,sticky="ew",padx=50)
 
+    def selector_reset(self):
+        # Reset main menu when you back out of note menu
+        self.pdf_select.set("--Select a PDF--")
+        self.pdf = ""
+        self.pdf_path = ""
+        self.note_select.set("")
+        self.note_name = ""
+        self.note_dict = None
+        self.note_frame = None
+
     def open_note(self, event=None):
 
         self.note_name = self.note_select.get().strip()
@@ -281,7 +319,7 @@ class main_menu(tk.Frame):
                     self.note_dict["subheader"] = "Subheader"
                     self.note_dict["note_body"] = "Note text"
 
-                packed = (self.note_name, self.note_dict, self.pdf)
+                packed = (self.note_name, self.note_dict, self.pdf, self.pdf_path)
 
                 # init note menu with note_json
                 self.note_menu = note_menu(self.container, self.application, packed)
@@ -320,6 +358,45 @@ class main_menu(tk.Frame):
     def set_user(self, name):
         self.current_user = name
         self.header.config(text=f"Welcome {self.current_user}. Select a PDF and Note to begin!")
+
+class tips(tk.Frame):
+    def __init__(self, container):
+        super().__init__(container)
+        #Text for each section
+        self.s = "Survey: Read the highlighted headers, subheaders, and topic sentences. Study figures."
+        self.q = "Question: Form questions based on what you read and looked at."
+        self.read = "Read: Read the rest of the text and try to answer your questions."
+        self.recite = "Recite: Answer the questions in your own words, without looking at the material." 
+        self.review = "Review: Test your memory by attempting to answer your questions without looking."
+        self.tips_list = [self.s, self.q, self.read, self.recite, self.review]
+        self.tips_iter = 0
+
+        #Grid setup for displaying tips
+        self.rowconfigure(0, weight=1)
+        self.columnconfigure(0, minsize=20)
+        self.columnconfigure(1, weight=1)
+        self.columnconfigure(2, minsize=20)
+
+        #Back button
+        self.back_butt = tk.Button(self, text="<", font=('Times New Roman', 10), command=lambda: self.iter(i = -1))
+        self.back_butt.grid(row=0, column=0, sticky="ew")
+
+        #Forward button
+        self.for_butt = tk.Button(self, text=">", font=('Times New Roman', 10), command=lambda: self.iter(i = 1))
+        self.for_butt.grid(row=0, column=2, sticky="ew")
+
+        #Text display
+        self.text = tk.Label(self, text=self.tips_list[self.tips_iter], font=('Times New Roman', 15), wraplength=300)
+        self.text.grid(row=0, column=1, sticky="nsew")
+        self.text.bind("<Configure>", self.update_wrap)
+
+    def iter(self, i, event=None):
+        self.tips_iter = (self.tips_iter + i)%5
+        self.text.config(text=self.tips_list[self.tips_iter])
+
+    def update_wrap(self, event):
+        # Set wraplength to a fraction of the current window width
+        self.text.config(wraplength=event.width - 40)
 
 def main():
     serverObject = local_server_component("TestDummies", "TestStorage")
