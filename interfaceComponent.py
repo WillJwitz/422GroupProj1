@@ -221,7 +221,7 @@ class note_menu(tk.Frame):
     def add_subnote(self, event=None):
         selected = self.subheader_field.get().strip() # new selected or entered subheader
         body = self.note_field.get("1.0", "end-1c")
-        if selected != "Select note section, or type new subheader and press enter.":
+        if selected != "Select note section, or type new subheader and press enter." and selected != "":
 
             self.notes_dict[selected] = body
         
@@ -392,6 +392,7 @@ class main_menu(tk.Frame):
         self.pdf = ""
         self.pdf_path = ""
         self.note_select.set("")
+        self.note_select.config(values=[])
         self.note_name = ""
         self.note_dict = None
         self.note_frame = None
