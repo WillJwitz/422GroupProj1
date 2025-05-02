@@ -119,6 +119,9 @@ class note_menu(tk.Frame):
         self.sub_list = list(self.notes_dict.keys()) # list of keys aka subheaders
         self.current = "" # set currently editing to startup val
 
+        self.just_typed = [""] # array to store whatever was just in the list
+        self.sub_var = tk.StringVar()
+        self.sub_var.trace_add("write", self.on_type)
 
         #Font Sizes
         self.header_size = 18
@@ -194,11 +197,12 @@ class note_menu(tk.Frame):
         self.sub_frame.columnconfigure(1, minsize=10)
         self.sub_frame.columnconfigure(2, minsize=10)
         self.sub_frame.grid(row=1, column=0, sticky="nsew", padx=10)
-        self.subheader_field = ttk.Combobox(self.sub_frame, font=('Times New Roman', self.subheader_size), values=self.sub_list)
+        self.subheader_field = ttk.Combobox(self.sub_frame, textvariable=self.sub_var, font=('Times New Roman', self.subheader_size), values=self.sub_list)
         self.subheader_field.set("Select note section, or type new subheader and press enter.")
         self.subheader_field.grid(row=0, column=0, padx=10, pady=5, sticky="ew")
         self.subheader_field.bind("<<ComboboxSelected>>", self.sub_select)
         self.subheader_field.bind("<Return>", self.sub_select)
+        
 
         # button to make new note file
         self.add_butt = tk.Button(self.sub_frame, text = "+", font = ('Times New Roman', 10), command=self.add_subnote)
@@ -217,6 +221,11 @@ class note_menu(tk.Frame):
             self.subheader_field.set(list(self.notes_dict.keys())[0])
             self.note_field.insert(tk.END, self.notes_dict[list(self.notes_dict.keys())[0]])
             self.current = list(self.notes_dict.keys())[0]
+
+    def on_type(self, *args):
+        new = self.subheader_field.get()
+        if new != "" and new not in self.sub_list:
+            self.just_typed[0] = new
 
     def add_subnote(self, event=None):
         selected = self.subheader_field.get().strip() # new selected or entered subheader
@@ -255,8 +264,12 @@ class note_menu(tk.Frame):
         if selected == "":
             print("Can't handle blank name")
             return
-        
+
         if self.current == "": # just entered or selected new note for first time in blank dict
+            if self.just_typed[0] not in self.notes_dict and self.just_typed[0] != "":
+                self.notes_dict[self.just_typed[0]] = body
+                self.just_typed[0] = ""
+
             if selected in self.notes_dict:
                 self.note_field.delete("1.0", tk.END)
                 self.note_field.insert(tk.END, self.notes_dict[selected])
@@ -273,12 +286,10 @@ class note_menu(tk.Frame):
                 self.notes_dict[selected] = ""
                 self.note_field.delete("1.0", tk.END)
             self.current = selected
-
         
         self.sub_list = list(self.notes_dict.keys())
         self.subheader_field.config(values=self.sub_list)
                 
-
     def save(self, event = None):
         sub = self.subheader_field.get()
         body = self.note_field.get("1.0", "end-1c")
