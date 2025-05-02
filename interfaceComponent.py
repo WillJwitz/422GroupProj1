@@ -41,6 +41,10 @@ class app_window(tk.Tk):
         
         self.show(self.login_screen)
 
+        #Kaleo: show error message if necessary
+        if not error_message is None:
+            messagebox.showwarning("SQ3R Note-Taker", error_message)
+
     def show(self, screen):
         screen.tkraise()
         if screen == self.main_menu:
@@ -401,7 +405,7 @@ class tips(tk.Frame):
 def main():
     serverObject = local_server_component("TestDummies", "TestStorage")
 
-    win = app_window(serverObject)
+    win = app_window(serverObject, "Running test version, please run app from main.py")
     win.mainloop()
     
 
