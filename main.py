@@ -23,7 +23,7 @@ def main():
 
     if config["allow_server"]:
         try:
-            print(f"attemping mongo connection on ip: {config["server_ip"]}")
+            print(f"attemping mongo connection on ip: {config['server_ip']}")
             mongo_server = mongo_server_component(config["pdf_cache_path"], config["server_ip"])
             server = mongo_server
 
