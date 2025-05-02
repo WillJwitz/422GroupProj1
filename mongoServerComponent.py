@@ -3,16 +3,35 @@ from pymongo import MongoClient
 import gridfs
 import os
 
-MONGO_IP = "20.253.140.74:27017" #rewrite this once we have a config file
+#Kaleo: pdfs path and server ip are now in config
+#but these seeemed fine as constants
 DB_NAME = "project_database"
 NOTE_COLLECTION = "user_notes"
-PDF_DIR = "./pdfs" #where local pdfs are stored (can be changed)
+
+class server_error(Exception):
+    def __init__(self, message: str, inner_error: BaseException = None): 
+        self.message: str = message
+        self.error: BaseException = inner_error
+
+    def get_inner(self) -> BaseException:
+        return self.error
+
 
 class mongo_server_component(abstract_server_component):
-    def __init__(self):
-        self.client = MongoClient(f"mongodb://{MONGO_IP}")
+    def __init__(self, pdf_cache_path: str, server_ip: str):
+        #Kaleo: reduce timeout to make startup less slow
+        timeout = 4000 
+        self.client = MongoClient(f"mongodb://{server_ip}", serverSelectionTimeoutMS = timeout)
         self.db = self.client[DB_NAME]
         self.fs = gridfs.GridFS(self.db)
+        self.pdfs_path:str = pdf_cache_path
+
+        #Kaleo: basic error handling
+        try:
+             self.client.server_info()
+        except Exception as e:
+            raise server_error("Failed to connect to server", e)
+
 
     def authenticate(self, username: str) -> bool:
         #drew? any input on the authentication process? (we gotta be secure)
@@ -22,12 +41,12 @@ class mongo_server_component(abstract_server_component):
         return [f.filename for f in self.fs.find()]
 
     def get_pdf_path(self, filename: str) -> str:
-        local_path = os.path.join(PDF_DIR, filename)
+        local_path = os.path.join(self.pdfs_path, filename)
         if not os.path.isfile(local_path):
             grid_out = self.fs.find_one({"filename": filename})
             if grid_out:
-                if not os.path.exists(PDF_DIR):
-                    os.makedirs(PDF_DIR)
+                if not os.path.exists(self.pdfs_path):
+                    os.makedirs(self.pdfs_path)
                 with open(local_path, 'wb') as f:
                     f.write(grid_out.read())
         return local_path
