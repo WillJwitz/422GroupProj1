@@ -110,8 +110,11 @@ class note_menu(tk.Frame):
 
         #Grab header, subheader, and body notes from passed dict.
         self.header = self.note["header"]
-        self.subheader = self.note["subheader"]
-        self.note_body = self.note["note_body"]
+        self.notes_list = self.note["notes"] # list of tuples
+        self.notes_dict = {n[0]:n[1] for n in self.notes_list} # make dict of tuples
+        self.sub_list = list(self.notes_dict.keys()) # list of keys aka subheaders
+        self.current = "" # set currently editing to startup val
+
 
         #Font Sizes
         self.header_size = 18
@@ -181,21 +184,104 @@ class note_menu(tk.Frame):
         self.header_field.grid(row=0, column=0, padx=10, pady=5, sticky="ew")
 
         #Create subheader text area, etc.
-        self.subheader_field = tk.Entry(self.text_container, font=('Times New Roman', self.subheader_size))
-        self.subheader_field.insert(tk.END, self.subheader)
-        self.subheader_field.grid(row=1, column=0, padx=10, pady=5, sticky="ew")
+        self.sub_frame = tk.Frame(self.text_container) # frame to get some buttons next to selector
+        self.sub_frame.rowconfigure(0, weight= 1)
+        self.sub_frame.columnconfigure(0, weight=1)
+        self.sub_frame.columnconfigure(1, minsize=10)
+        self.sub_frame.columnconfigure(2, minsize=10)
+        self.sub_frame.grid(row=1, column=0, sticky="nsew", padx=10)
+        self.subheader_field = ttk.Combobox(self.sub_frame, font=('Times New Roman', self.subheader_size), values=self.sub_list)
+        self.subheader_field.set("Select note section, or type new subheader and press enter.")
+        self.subheader_field.grid(row=0, column=0, padx=10, pady=5, sticky="ew")
+        self.subheader_field.bind("<<ComboboxSelected>>", self.sub_select)
+        self.subheader_field.bind("<Return>", self.sub_select)
 
+        # button to make new note file
+        self.add_butt = tk.Button(self.sub_frame, text = "+", font = ('Times New Roman', 10), command=self.add_subnote)
+        self.add_butt.grid(row=0, column=1, sticky="nsew", padx=2)
+        
+        # button to delete current note file
+        self.delete_butt = tk.Button(self.sub_frame, text = "-", font = ('Times New Roman', 10), command=self.remove_subnote)
+        self.delete_butt.grid(row=0, column=2, sticky="nsew", padx=2)
+        
         #Create note field
         self.note_field = tk.Text(self.text_container, font=('Times New Roman', self.note_body_size), wrap="word", height=10)
-        self.note_field.insert(tk.END, self.note_body)
-        self.note_field.grid(row=2, column=0, padx=10, pady=5, sticky="nsew")
+        self.note_field.insert(tk.END, "")
+        self.note_field.grid(row=2, column=0, pady=5, sticky="nsew", padx=10)
 
-    
+        if self.notes_dict:
+            self.subheader_field.set(list(self.notes_dict.keys())[0])
+            self.note_field.insert(tk.END, self.notes_dict[list(self.notes_dict.keys())[0]])
+            self.current = list(self.notes_dict.keys())[0]
+
+    def add_subnote(self, event=None):
+        selected = self.subheader_field.get().strip() # new selected or entered subheader
+        body = self.note_field.get("1.0", "end-1c")
+        if selected != "Select note section, or type new subheader and press enter.":
+
+            self.notes_dict[selected] = body
+        
+        self.subheader_field.set("")
+        self.note_field.delete("1.0", tk.END)
+        self.note_field.insert(tk.END, "")
+
+        self.current = ""
+        self.sub_list = list(self.notes_dict.keys())
+        self.subheader_field.config(values=self.sub_list)
+
+    def remove_subnote(self, event=None):
+        selected = self.subheader_field.get().strip() # deleting this one
+
+        del self.notes_dict[selected] # remove it from internal storage dict
+        
+        self.subheader_field.set("")
+        self.note_field.delete("1.0", tk.END)
+        self.note_field.insert(tk.END, "")
+
+        self.current = ""
+        self.sub_list = list(self.notes_dict.keys())
+        self.subheader_field.config(values=self.sub_list)
+
+    def sub_select(self, event=None):
+        selected = self.subheader_field.get().strip() # new selected or entered subheader
+        body = self.note_field.get("1.0", "end-1c") # potentially contains old notes
+
+        print(f"selcted: {selected}, current: {self.current}")
+
+        if selected == "":
+            print("Can't handle blank name")
+            return
+        
+        if self.current == "": # just entered or selected new note for first time in blank dict
+            if selected in self.notes_dict:
+                self.note_field.delete("1.0", tk.END)
+                self.note_field.insert(tk.END, self.notes_dict[selected])
+            else:
+                self.notes_dict[selected] = body
+            self.current = selected
+
+        elif self.current != "": # just entered or selected note, not first time or pre-existing note file
+            self.notes_dict[self.current] = body
+            if selected in self.notes_dict:
+                self.note_field.delete("1.0", tk.END)
+                self.note_field.insert(tk.END, self.notes_dict[selected])
+            else:
+                self.notes_dict[selected] = ""
+                self.note_field.delete("1.0", tk.END)
+            self.current = selected
+
+        
+        self.sub_list = list(self.notes_dict.keys())
+        self.subheader_field.config(values=self.sub_list)
+                
+
     def save(self, event = None):
+        sub = self.subheader_field.get()
+        body = self.note_field.get("1.0", "end-1c")
+        self.notes_dict[sub] = body
         note = {}
         note["header"] = self.header_field.get()
-        note["subheader"] = self.subheader_field.get()
-        note["note_body"] = self.note_field.get('1.0', 'end-1c')
+        note["notes"] = list(self.notes_dict.items())
 
         server = self.application.server
         server.send_note(self.pdf, self.note_name, note)
@@ -211,6 +297,7 @@ class note_menu(tk.Frame):
 
     def back(self, event=None):
         #go back to previous menu
+        self.save()
         self.application.show(self.application.main_menu)
         self.destroy()
     
@@ -249,9 +336,7 @@ class main_menu(tk.Frame):
         self.header.grid(row=0,column=1,sticky="ew")
 
         # Menu button setup and display
-        self.menu_graphic = tk.PhotoImage(file=os.path.join("Assets", "Menu", "menuButton.png"))
-        self.menu_graphic = self.menu_graphic.subsample(4,4)
-        self.logout_button = tk.Button(self, image=self.menu_graphic)
+        self.logout_button = tk.Button(self, text="<<<", font=('Times New Roman', 10), command=self.logout)
         self.logout_button.grid(row=0,column=0)
 
         # Frame setup for selections
@@ -314,10 +399,9 @@ class main_menu(tk.Frame):
             if self.note_name != "": # pickup when no note name selected or entered
                 self.note_dict = self.application.server.get_note_file(self.pdf, self.note_name) # get note dict, creates new if note does not exist
                 if "header" not in self.note_dict:
-                    
                     self.note_dict["header"] = "Header"
-                    self.note_dict["subheader"] = "Subheader"
-                    self.note_dict["note_body"] = "Note text"
+                    self.note_dict["notes"] = []
+
 
                 packed = (self.note_name, self.note_dict, self.pdf, self.pdf_path)
 
@@ -358,6 +442,10 @@ class main_menu(tk.Frame):
     def set_user(self, name):
         self.current_user = name
         self.header.config(text=f"Welcome {self.current_user}. Select a PDF and Note to begin!")
+
+    def logout(self, event=None):
+        self.current_user = "temp" # reset to default val
+        self.application.show(self.application.login_screen)
 
 class tips(tk.Frame):
     def __init__(self, container):
