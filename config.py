@@ -15,7 +15,7 @@ class config_handler():
                 data[k] = self.cfgs[k][1]
         return data
     
-    def create_config(self):
+    def reset_config(self):
         default = self.fill_defaults({})
         json.dump(default, open(self.path, "w"), indent=4)
     
@@ -30,5 +30,5 @@ class config_handler():
                 default = self.fill_defaults({})
                 return default
         else:
-            self.create_config()
+            self.reset_config()
             return self.fill_defaults(json.load(open(self.path, "r")))

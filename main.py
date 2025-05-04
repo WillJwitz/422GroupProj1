@@ -3,23 +3,16 @@ from localServerComponent import local_server_component
 from memoryServerComponent import memory_server_component
 from mongoServerComponent import mongo_server_component, server_error
 from interfaceComponent import app_window
-from config import config_handler
+from defaultConfigs import create_default_config
 
 def main():
     pdfs_path:str = "TestDummies"
 
-    config_helper:config_handler = config_handler("config.txt");
-
     server:abstract_server_component = memory_server_component(pdfs_path)
-
-    config_helper.add("allow_local", bool, True)
-    config_helper.add("local_data_path", str, "Notes Data")
-    config_helper.add("allow_server", bool, True)
-    config_helper.add("server_ip", str, f"20.253.140.74:27017")
-    config_helper.add("pdf_cache_path", str, ".pdfs")
-    
     error: str = None
-    config = config_helper.get_or_create()
+
+    #TODO: do we want missing configs to be a fatal error instead?
+    config = create_default_config()
 
     if config["allow_server"]:
         try:

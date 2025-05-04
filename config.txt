@@ -1,7 +1,7 @@
 {
     "allow_local": true,
-    "server_ip": "20.253.140.74:27017",
     "local_data_path": "Notes Data",
     "allow_server": true,
-    "pdf_cache_path": ".pdfs"
+    "server_ip": "20.253.140.74:27017",
+    "pdf_cache_path": ".pdf_cache"
 }
