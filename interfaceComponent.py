@@ -60,7 +60,7 @@ class login(tk.Frame):
         self.entry_field = tk.Frame(self)
 
         # Label to prompt user selection
-        self.prompt = tk.Label(self.entry_field, text="Select User")
+        self.prompt = tk.Label(self.entry_field, text="Select User", font=("Helvetica", 20))
         self.prompt.pack()
 
         self.username = ""
@@ -81,24 +81,19 @@ class login(tk.Frame):
 
     def submit_user(self, event=None):
         
-        user_entered = self.user_field.get()
-        # HAYDEN
-        # Use servercomponent to set user and get boolean
-        # On server succes:
-        # Use main_menu.set_user to change user for that class
-        # use self.application to access main_menu
-        
-        auth = self.application.server.authenticate(user_entered)
-        if (auth):
-            # display main menu
-            # use self.application.show
-            self.application.main_menu.set_user(user_entered)
-            self.application.show(self.application.main_menu)
+        user_entered = self.user_field.get().strip()
+       
+        if user_entered != "":
+            auth = self.application.server.authenticate(user_entered)
+            if auth:
+                # display main menu
+                self.application.main_menu.set_user(user_entered)
+                self.application.show(self.application.main_menu)
+            else:
+                self.error.config(text="Login Error, User authentication failed, try again.")
+                raise Exception("Something occured when authenticating.")
         else:
-            #WILL
-            #Not sure if we even want to handle this error, so feel free to change or completely remove the else part.
-            self.error.config(text="Login Error, User authentication failed, try again.")
-            raise Exception("Something occured when authenticating.")
+            self.error.config(text="Login Error, enter a valid name.")
     
 class note_menu(tk.Frame):
     def __init__(self, container, app, note: tuple):
@@ -150,11 +145,11 @@ class note_menu(tk.Frame):
 
         #Header label
         note_words = f"Editing {self.note_name}"
-        self.note_label = tk.Label(self.top_frame, text=note_words, font = ('Times New Roman', 20))
+        self.note_label = tk.Label(self.top_frame, text=note_words, font = ('Helvetica', 20))
         self.note_label.grid(row=0, column=0, sticky="nsew")
 
         #SQ3R button
-        self.tips_butt = tk.Button(self.top_frame, text="SQ3R", font=('Times New Roman', 10), command=self.show_tips)
+        self.tips_butt = tk.Button(self.top_frame, text="SQ3R", font=('Helvetica', 10), command=self.show_tips)
         self.tips_butt.grid(row=0, column=1, sticky="nsew", padx=5)
 
         # Bottom bar button frame
@@ -165,15 +160,15 @@ class note_menu(tk.Frame):
         self.butt_frame.grid(row=2, column=1)
 
         #Create Back Button
-        self.back_button = tk.Button(self, text="BACK", font=('Times New Roman', 10), command=self.back)
+        self.back_button = tk.Button(self, text="<<<", font=('Helvetica', 12), command=self.back)
         self.back_button.grid(row=0, column=0, sticky="ew", padx=5)
 
         #Create Save Button
-        self.save_butt = tk.Button(self.butt_frame, text = "SAVE", font = ('Times New Roman', 10), command=self.save)
+        self.save_butt = tk.Button(self.butt_frame, text = "SAVE", font = ('Helvetica', 10), command=self.save)
         self.save_butt.grid(row = 0, column = 0, sticky="nsew")
         
         #Create PDF Button
-        self.pdf_butt = tk.Button(self.butt_frame, text="PDF", font = ('Times New Roman', 10), command=self.open_pdf)
+        self.pdf_butt = tk.Button(self.butt_frame, text="PDF", font = ('Helvetica', 10), command=self.open_pdf)
         self.pdf_butt.grid(row=0, column=1, sticky="nsew")
 
         #Create container for text fields.
@@ -186,7 +181,7 @@ class note_menu(tk.Frame):
         self.text_container.grid(row=1, column=1, sticky="nsew")
 
         #Create header text area, configure, and load text.
-        self.header_field = tk.Entry(self.text_container, font=('Times New Roman', self.header_size))
+        self.header_field = tk.Entry(self.text_container, font=('Helvetica', self.header_size))
         self.header_field.insert(tk.END, self.header)
         self.header_field.grid(row=0, column=0, padx=10, pady=5, sticky="ew")
 
@@ -197,7 +192,7 @@ class note_menu(tk.Frame):
         self.sub_frame.columnconfigure(1, minsize=10)
         self.sub_frame.columnconfigure(2, minsize=10)
         self.sub_frame.grid(row=1, column=0, sticky="nsew", padx=10)
-        self.subheader_field = ttk.Combobox(self.sub_frame, textvariable=self.sub_var, font=('Times New Roman', self.subheader_size), values=self.sub_list)
+        self.subheader_field = ttk.Combobox(self.sub_frame, textvariable=self.sub_var, font=('Helvetica', self.subheader_size), values=self.sub_list)
         self.subheader_field.set("Select note section, or type new subheader and press enter.")
         self.subheader_field.grid(row=0, column=0, padx=10, pady=5, sticky="ew")
         self.subheader_field.bind("<<ComboboxSelected>>", self.sub_select)
@@ -205,15 +200,15 @@ class note_menu(tk.Frame):
         
 
         # button to make new note file
-        self.add_butt = tk.Button(self.sub_frame, text = "+", font = ('Times New Roman', 10), command=self.add_subnote)
+        self.add_butt = tk.Button(self.sub_frame, text = "+", font = ('Helvetica', 10), command=self.add_subnote)
         self.add_butt.grid(row=0, column=1, sticky="nsew", padx=2)
         
         # button to delete current note file
-        self.delete_butt = tk.Button(self.sub_frame, text = "-", font = ('Times New Roman', 10), command=self.remove_subnote)
+        self.delete_butt = tk.Button(self.sub_frame, text = "-", font = ('Helvetica', 10), command=self.remove_subnote)
         self.delete_butt.grid(row=0, column=2, sticky="nsew", padx=2)
         
         #Create note field
-        self.note_field = tk.Text(self.text_container, font=('Times New Roman', self.note_body_size), wrap="word", height=10)
+        self.note_field = tk.Text(self.text_container, font=('Helvetica', self.note_body_size), wrap="word", height=10)
         self.note_field.insert(tk.END, "")
         self.note_field.grid(row=2, column=0, pady=5, sticky="nsew", padx=10)
 
@@ -347,11 +342,11 @@ class main_menu(tk.Frame):
 
         # Header text setup and display
         self.header_text = f"Welcome {self.current_user}. Select a PDF and Note to begin!"
-        self.header = tk.Label(self, text=self.header_text, font=('Times New Roman', 18))
+        self.header = tk.Label(self, text=self.header_text, font=('Helvetica', 20))
         self.header.grid(row=0,column=1,sticky="ew")
 
         # Menu button setup and display
-        self.logout_button = tk.Button(self, text="<<<", font=('Times New Roman', 10), command=self.logout)
+        self.logout_button = tk.Button(self, text="<<<", font=('Helvetica', 12), command=self.logout)
         self.logout_button.grid(row=0,column=0)
 
         # Frame setup for selections
@@ -364,11 +359,11 @@ class main_menu(tk.Frame):
 
         # PDF selector setup
         self.pdf_selector_frame = tk.Frame(self.note_frame)
-        self.pdf_label = tk.Label(self.pdf_selector_frame, text="Select a PDF file from the dropdown.", font=("Times New Roman", 14))
+        self.pdf_label = tk.Label(self.pdf_selector_frame, text="Select a PDF file from the dropdown.", font=("Helvetica", 18))
         self.pdf_label.pack(fill="both")
         self.pdf_options = self.application.server.get_pdfs()
         self.pdf_select = ttk.Combobox(self.pdf_selector_frame, values=self.pdf_options, state="readonly")
-        self.pdf_select.pack(fill="both")
+        self.pdf_select.pack(fill="both", padx=100)
         self.pdf_select.set("--Select a PDF--")
         self.pdf_select.bind("<<ComboboxSelected>>", self.pdf_selected)
         self.pdf_selector_frame.grid(row=0, column=0, padx=50, sticky="ew")
@@ -376,10 +371,10 @@ class main_menu(tk.Frame):
         # Note selector setup
         self.note_selector_frame = tk.Frame(self.note_frame)
         self.note_options = []
-        self.note_label = tk.Label(self.note_selector_frame, text="Select note document, or enter name for new note.", font=("Times New Roman", 14))
+        self.note_label = tk.Label(self.note_selector_frame, text="Select note document, or enter new name.", font=("Helvetica", 18))
         self.note_label.pack(fill="both")
         self.note_select = ttk.Combobox(self.note_selector_frame, values=self.note_options, state="normal")
-        self.note_select.pack(fill="both")
+        self.note_select.pack(fill="both", padx=100)
     
         self.note_select.bind("<<ComboboxSelected>>", self.note_selected)
         self.note_selector_frame.grid(row=1, column=0, padx=50, sticky="ew")
@@ -467,11 +462,11 @@ class tips(tk.Frame):
     def __init__(self, container):
         super().__init__(container)
         #Text for each section
-        self.s = "Survey: Read the highlighted headers, subheaders, and topic sentences. Study figures."
-        self.q = "Question: Form questions based on what you read and looked at."
-        self.read = "Read: Read the rest of the text and try to answer your questions."
-        self.recite = "Recite: Answer the questions in your own words, without looking at the material." 
-        self.review = "Review: Test your memory by attempting to answer your questions without looking."
+        self.s = "Survey: Skim over the chapter reading the highlighted headers, subheaders, and topic sentences. Study figures, and get a general sense of the chapter's focus."
+        self.q = "Question: Form questions that you think may be answered in the reading. Try to form questions for each subheader you looked at."
+        self.read = "Read: Read the rest of the text mindfully and try to answer your questions."
+        self.recite = "Recite: After reading each section, stop. Try and answer the questions you asked in your own words, without looking at the material." 
+        self.review = "Review: After reading the whole chapter or section test your memory by attempting to answer your questions without looking at your notes."
         self.tips_list = [self.s, self.q, self.read, self.recite, self.review]
         self.tips_iter = 0
 
@@ -482,15 +477,15 @@ class tips(tk.Frame):
         self.columnconfigure(2, minsize=20)
 
         #Back button
-        self.back_butt = tk.Button(self, text="<", font=('Times New Roman', 10), command=lambda: self.iter(i = -1))
+        self.back_butt = tk.Button(self, text="<", font=('Helvetica', 10), command=lambda: self.iter(i = -1))
         self.back_butt.grid(row=0, column=0, sticky="ew")
 
         #Forward button
-        self.for_butt = tk.Button(self, text=">", font=('Times New Roman', 10), command=lambda: self.iter(i = 1))
+        self.for_butt = tk.Button(self, text=">", font=('Helvetica', 10), command=lambda: self.iter(i = 1))
         self.for_butt.grid(row=0, column=2, sticky="ew")
 
         #Text display
-        self.text = tk.Label(self, text=self.tips_list[self.tips_iter], font=('Times New Roman', 15), wraplength=300)
+        self.text = tk.Label(self, text=self.tips_list[self.tips_iter], font=('Helvetica', 15), wraplength=300)
         self.text.grid(row=0, column=1, sticky="nsew")
         self.text.bind("<Configure>", self.update_wrap)
 
