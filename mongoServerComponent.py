@@ -25,6 +25,7 @@ class mongo_server_component(abstract_server_component):
         self.db = self.client[DB_NAME]
         self.fs = gridfs.GridFS(self.db)
         self.pdfs_path:str = pdf_cache_path
+        self.user:str|None = None
 
         #Kaleo: basic error handling
         try:
@@ -35,6 +36,8 @@ class mongo_server_component(abstract_server_component):
 
     def authenticate(self, username: str) -> bool:
         #drew? any input on the authentication process? (we gotta be secure)
+        #TODO: do we check with server if the username is valid?
+        self.user = username
         return True
 
     def get_pdfs(self) -> list[str]:
@@ -52,16 +55,16 @@ class mongo_server_component(abstract_server_component):
         return local_path
 
     def get_notes(self, pdfName: str) -> list[str]:
-        notes = self.db[NOTE_COLLECTION].find({"pdfName": pdfName})
+        notes = self.db[NOTE_COLLECTION].find({"pdfName": pdfName, "username": self.user})
         return [note["noteName"] for note in notes]
 
     def get_note_file(self, pdfName: str, noteName: str) -> dict:
-        note = self.db[NOTE_COLLECTION].find_one({"pdfName": pdfName, "noteName": noteName})
+        note = self.db[NOTE_COLLECTION].find_one({"pdfName": pdfName, "noteName": noteName, "username": self.user})
         return note if note else {}
 
     def send_note(self, pdfName: str, noteName: str, jsonNote: dict) -> bool:
         self.db[NOTE_COLLECTION].update_one(
-            {"pdfName": pdfName, "noteName": noteName},
+            {"pdfName": pdfName, "noteName": noteName, "username": self.user},
             {"$set": jsonNote},
             upsert=True
         )
