@@ -6,12 +6,12 @@ from interfaceComponent import app_window
 from defaultConfigs import create_default_config
 
 def main():
+    #local pdfs path
     pdfs_path:str = "TestDummies"
 
     server:abstract_server_component = memory_server_component(pdfs_path)
     error: str = None
 
-    #TODO: do we want missing configs to be a fatal error instead?
     config = create_default_config()
 
     if config["allow_server"]:
@@ -24,7 +24,6 @@ def main():
 
             print("saving data on mongo server")
         except server_error as e:
-            #Kaleo: not sure what to do for the error message here
             error = e.message
 
             #print error to console for debugging
@@ -38,8 +37,10 @@ def main():
                 print("saving data locally")
                 server = local_server_component(pdfs_path, "Notes Data")
             else:
+                #make error message for user more scary
                 error = "WARNING: no server connection, data will NOT be saved!"
 
+    #launch app with the chosen server, and notify user of error if present
     win = app_window(server, error)
     win.mainloop()
 

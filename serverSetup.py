@@ -13,13 +13,21 @@ def main():
     args = parser.parse_args()
 
     try:
+        #connect to both remote mongo server AND local setup filesystem
+        #to transfer data from local to remote
         mongo_server = mongo_server_component(".setup_pdf_cache", args.server_ip)
         local_server = local_server_component("Setup/pdfs", "Setup/notes")
+
         if(args.clear_pdfs):
             mongo_server.delete_all_pdfs()
             print("deleted pdfs on server")
+        
+        #start by uploading pdfs
+        #this shouldn't need user authentication
         for p in local_server.get_pdfs():
                 mongo_server.send_pdf(p, local_server.get_pdf_path(p))
+        
+        #upload user data, which is just notes
         for u in getUsers():
             local_server.authenticate(u);
             mongo_server.authenticate(u);
