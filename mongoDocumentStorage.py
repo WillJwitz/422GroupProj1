@@ -77,7 +77,7 @@ class mongo_document_storage(abstract_document_storage):
         return True
 
     #extra function added to allow uploading files during server setup
-    #in the future this might be added to the abstract component, to allow for synching
+    #in the future this might be added to the abstract component, to allow for syncing
     def send_pdf(self, pdfName:str, pdfPath: str) -> bool:
         with open(pdfPath, 'rb') as f:
             hadOld = False
