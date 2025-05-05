@@ -69,6 +69,22 @@ class mongo_server_component(abstract_server_component):
             upsert=True
         )
         return True
+
+    def send_pdf(self, pdfName:str, pdfPath: str) -> bool:
+        with open(pdfPath, 'rb') as f:
+            hadOld = False
+            for file in self.fs.find({"filename": pdfName}):
+                self.fs.delete(file._id)
+                hadOld = True
+            self.fs.put(f.read(), filename = pdfName)
+            if(hadOld):
+                print("uploaded updated pdf")
+            else:
+                print("uploaded new pdf")
+    
+    def delete_all_pdfs(self):
+        for file in self.fs.find():
+            self.fs.delete(file._id)
     
     def close(self):
         self.client.close()

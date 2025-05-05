@@ -60,11 +60,16 @@ class local_server_component(abstract_server_component):
         try:
             print(self.notes_path(strPdf))
             path = self.notes_path(strPdf)
-            files = [file for file in os.listdir(path) if os.path.isfile(path+'/'+file)]
-            print("files: ")
-            [print(file) for file in files]
-            # split file name
-            return [os.path.splitext(file)[0] for file in files]
+            try:
+                os.mkdir(path)
+                print("created path for notes")
+                return super().get_notes(strPdf)
+            except:
+                files = [file for file in os.listdir(path) if os.path.isfile(path+'/'+file)]
+                print("files: ")
+                [print(file) for file in files]
+                # split file name
+                return [os.path.splitext(file)[0] for file in files]
         except IOError as e: 
             print("error finding notes")
             print(e)
