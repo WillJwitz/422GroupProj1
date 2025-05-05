@@ -82,6 +82,7 @@ class mongo_server_component(abstract_server_component):
                 print("uploaded updated pdf")
             else:
                 print("uploaded new pdf")
+        return True
     
     def delete_all_pdfs(self):
         for file in self.fs.find():
