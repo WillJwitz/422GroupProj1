@@ -5,7 +5,7 @@ Document Storage Module
 Sawyer Christenssen, Drew Christie, Kaleo Montero
 Last edited --- 5/4/2025
 """
-from abstractServerComponent import abstract_server_component
+from abstractDocumentStorage import abstract_document_storage
 from pymongo import MongoClient
 import gridfs
 import os
@@ -22,7 +22,7 @@ class server_error(Exception):
         return self.error
 
 
-class mongo_server_component(abstract_server_component):
+class mongo_document_storage(abstract_document_storage):
     #A server component implementation that uses a mongo server to store notes
     #Designed for the main online mode of use
 

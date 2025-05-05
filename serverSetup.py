@@ -6,8 +6,8 @@ Kaleo Montero
 Last edited --- 5/4/2025
 """
 import argparse
-from mongoServerComponent import mongo_server_component, server_error
-from localServerComponent import local_server_component
+from mongoDocumentStorage import mongo_document_storage, server_error
+from localDocumentStorage import local_document_storage
 
 def getUsers():
     #TODO make this and the interface use the same function
@@ -22,8 +22,8 @@ def main():
     try:
         #connect to both remote mongo server AND local setup filesystem
         #to transfer data from local to remote
-        mongo_server = mongo_server_component(".setup_pdf_cache", args.server_ip)
-        local_server = local_server_component("Setup/pdfs", "Setup/notes")
+        mongo_server = mongo_document_storage(".setup_pdf_cache", args.server_ip)
+        local_server = local_document_storage("Setup/pdfs", "Setup/notes")
 
         if(args.clear_pdfs):
             mongo_server.delete_all_pdfs()

@@ -9,7 +9,7 @@ Last edited --- 4/23/2025
 from abc import ABC, abstractmethod  # Imports for abstract class
 from typing import Any
 
-class abstract_server_component(ABC):
+class abstract_document_storage(ABC):
     # Abstract class for Server component
     # Facilitates communication between the GUI
     # and the server components

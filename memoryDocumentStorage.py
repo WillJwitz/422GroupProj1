@@ -5,11 +5,11 @@ Document Storage Module
 Sawyer Christenssen, Kaleo Montero
 Last edited --- 4/24/2025
 """
-from abstractServerComponent import abstract_server_component
+from abstractDocumentStorage import abstract_document_storage
 import copy
 import os
 
-class memory_server_component(abstract_server_component):
+class memory_document_storage(abstract_document_storage):
     #A server component implementation that uses local files to store notes
     #Designed mainly for testing
     #But is the fallback for offline mode if local storage is disabled in the settings

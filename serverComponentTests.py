@@ -5,14 +5,14 @@ Document Storage Module
 Kaleo Montero
 Last edited --- 4/24/2025
 """
-from abstractServerComponent import abstract_server_component
-from memoryServerComponent import memory_server_component
-from localServerComponent import local_server_component
+from abstractDocumentStorage import abstract_document_storage
+from memoryDocumentStorage import memory_document_storage
+from localDocumentStorage import local_document_storage
 
 from typing import Any
 import shutil
 
-def test_save_load(server: abstract_server_component):
+def test_save_load(server: abstract_document_storage):
     data:dict[str, Any] = {}
     data["Title"] = "Hello World"
     data["Body"] = "This is a note file!"
@@ -28,7 +28,7 @@ def test_save_load(server: abstract_server_component):
     assert(new_data["Title"] == data["Title"])
     assert(new_data["Body"] == data["Body"])
 
-def test_two_user(server: abstract_server_component):
+def test_two_user(server: abstract_document_storage):
     data:dict[str, Any] = {}
     data["Title"] = "Hello World"
     data["Body"] = "This is a note file!"
@@ -60,9 +60,9 @@ def test_component(server_source, name:str):
     print("end testing: "+name)
 
 def main():
-    test_component(lambda: memory_server_component("TestDummies"), "memory server component")
+    test_component(lambda: memory_document_storage("TestDummies"), "memory server component")
 
-    test_component(lambda: local_server_component("TestDummies","TestDumps"), "local server component")
+    test_component(lambda: local_document_storage("TestDummies","TestDumps"), "local server component")
     shutil.rmtree("TestDumps")
 
 if __name__ == "__main__":

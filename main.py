@@ -6,10 +6,10 @@ Hayden Houlihan, Kaleo Montero
 Last edited --- 5/4/2025
 """
 
-from abstractServerComponent import abstract_server_component
-from localServerComponent import local_server_component
-from memoryServerComponent import memory_server_component
-from mongoServerComponent import mongo_server_component, server_error
+from abstractDocumentStorage import abstract_document_storage
+from localDocumentStorage import local_document_storage
+from memoryDocumentStorage import memory_document_storage
+from mongoDocumentStorage import mongo_document_storage, server_error
 from interfaceComponent import app_window
 from defaultConfigs import create_default_config
 
@@ -17,7 +17,7 @@ def main():
     #local pdfs path
     pdfs_path:str = "TestDummies"
 
-    server:abstract_server_component = memory_server_component(pdfs_path)
+    server:abstract_document_storage = memory_document_storage(pdfs_path)
     error: str = None
 
     config = create_default_config()
@@ -25,7 +25,7 @@ def main():
     if config["allow_server"]:
         try:
             print(f"attemping mongo connection on ip: {config['server_ip']}")
-            mongo_server = mongo_server_component(config["pdf_cache_path"], config["server_ip"])
+            mongo_server = mongo_document_storage(config["pdf_cache_path"], config["server_ip"])
             server = mongo_server
             print(len(server.get_pdfs()))
             #TODO: synchronize local data with server
@@ -43,7 +43,7 @@ def main():
                 error = error + "\nRunning in local mode"
                 
                 print("saving data locally")
-                server = local_server_component(pdfs_path, "Notes Data")
+                server = local_document_storage(pdfs_path, "Notes Data")
             else:
                 #make error message for user more scary
                 error = "WARNING: no server connection, data will NOT be saved!"

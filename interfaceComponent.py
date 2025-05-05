@@ -9,7 +9,7 @@ Last edited --- 5/4/2025
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
-from localServerComponent import local_server_component
+from localDocumentStorage import local_document_storage
 import subprocess
 import os
 
@@ -528,7 +528,7 @@ class tips(tk.Frame):
 
 """
 def main():
-    serverObject = local_server_component("TestDummies", "TestStorage")
+    serverObject = local_document_storage("TestDummies", "TestStorage")
 
     win = app_window(serverObject, "Running test version, please run app from main.py")
     win.mainloop()
