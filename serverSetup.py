@@ -1,3 +1,10 @@
+"""
+Team 2: Team Sprinkles
+Client setup script
+Setup script (no module)
+Kaleo Montero
+Last edited --- 5/4/2025
+"""
 import argparse
 from mongoServerComponent import mongo_server_component, server_error
 from localServerComponent import local_server_component

@@ -1,6 +1,7 @@
 """
-Team 2
+Team 2: Team Sprinkles
 SQ3R ARA Interface Component
+Student Interface Module
 William Jurewitz, Hayden Houlihan, Kaleo Montero
 Last edited --- 5/4/2025
 """

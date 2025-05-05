@@ -1,3 +1,10 @@
+"""
+Team 2: Team Sprinkles
+Default Configuration Setup
+Entrypoint Module
+Kaleo Montero
+Last edited --- 5/3/2025
+"""
 from config import config_handler
 from typing import Any
 

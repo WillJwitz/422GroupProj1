@@ -1,3 +1,10 @@
+"""
+Team 2: Team Sprinkles
+Client setup script
+Setup script (no module)
+Kaleo Montero
+Last edited --- 5/4/2025
+"""
 import argparse
 from defaultConfigs import create_default_config
 

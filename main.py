@@ -1,3 +1,11 @@
+"""
+Team 2: Team Sprinkles
+Main function
+Entrypoint Module
+Hayden Houlihan, Kaleo Montero
+Last edited --- 5/4/2025
+"""
+
 from abstractServerComponent import abstract_server_component
 from localServerComponent import local_server_component
 from memoryServerComponent import memory_server_component

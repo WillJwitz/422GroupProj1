@@ -1,3 +1,10 @@
+"""
+Team 2: Team Sprinkles
+Abstract Document Storage Class
+Document Storage Module
+Kaleo Montero
+Last edited --- 5/4/2025
+"""
 import os
 import json
 

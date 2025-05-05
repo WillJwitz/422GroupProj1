@@ -1,3 +1,10 @@
+"""
+Team 2: Team Sprinkles
+Local Document Storage Class
+Document Storage Module
+Kaleo Montero
+Last edited --- 5/4/2025
+"""
 from abstractServerComponent import abstract_server_component
 import os
 import json

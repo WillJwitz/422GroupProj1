@@ -1,3 +1,11 @@
+"""
+Team 2: Team Sprinkles
+Abstract Document Storage Class
+Document Storage Module
+Sawyer Christenssen, Drew Christie, Hayden Houlihan, William Jurewitz, Kaleo Montero
+Last edited --- 4/23/2025
+"""
+
 from abc import ABC, abstractmethod  # Imports for abstract class
 from typing import Any
 

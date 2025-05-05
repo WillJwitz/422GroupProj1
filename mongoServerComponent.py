@@ -1,3 +1,10 @@
+"""
+Team 2: Team Sprinkles
+Mongo Document Storage Class
+Document Storage Module
+Sawyer Christenssen, Drew Christie, Kaleo Montero
+Last edited --- 5/4/2025
+"""
 from abstractServerComponent import abstract_server_component
 from pymongo import MongoClient
 import gridfs
