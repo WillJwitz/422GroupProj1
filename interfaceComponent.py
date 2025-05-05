@@ -272,8 +272,8 @@ class note_menu(tk.Frame):
         self.subheader_field.set("")
         self.note_field.delete("1.0", tk.END)
         self.note_field.insert(tk.END, "")
-
         self.current = ""
+        # refresh drop-down of subheadings
         self.sub_list = list(self.notes_dict.keys())
         self.subheader_field.config(values=self.sub_list)
 
@@ -302,23 +302,25 @@ class note_menu(tk.Frame):
             self.current = selected
 
         elif self.current != "": # just entered or selected note, not first time or pre-existing note file
-            self.notes_dict[self.current] = body
-            if selected in self.notes_dict:
+            self.notes_dict[self.current] = body # save any changes to previous
+            if selected in self.notes_dict: # if new is in dict, load it onto screen
                 self.note_field.delete("1.0", tk.END)
                 self.note_field.insert(tk.END, self.notes_dict[selected])
-            else:
+            else: # if not then create it in dict
                 self.notes_dict[selected] = ""
                 self.note_field.delete("1.0", tk.END)
             self.current = selected
-        
+        # refresh drop down of subheadings
         self.sub_list = list(self.notes_dict.keys())
         self.subheader_field.config(values=self.sub_list)
                 
     def save(self, event = None):
+        # Save whole note document to storage component
         sub = self.subheader_field.get()
         body = self.note_field.get("1.0", "end-1c")
-        self.notes_dict[sub] = body
-        note = {}
+        self.notes_dict[sub] = body # saving current subheader to dict
+        # constructing note to submit to server
+        note = {} 
         note["header"] = self.header_field.get()
         note["notes"] = list(self.notes_dict.items())
 
@@ -326,6 +328,7 @@ class note_menu(tk.Frame):
         server.send_note(self.pdf, self.note_name, note)
         print("note saved")
 
+    # displays SQ3R tips or hides them when button is pressed
     def show_tips(self, event=None):
         if self.showing is True:
             self.note_label.tkraise()
@@ -334,10 +337,11 @@ class note_menu(tk.Frame):
             self.tips_frame.tkraise()
             self.showing = True
 
+    # return to main menu
     def back(self, event=None):
         #go back to previous menu
-        self.save()
-        self.application.show(self.application.main_menu)
+        self.save() # save file
+        self.application.show(self.application.main_menu) # call app_window function to pull up menu
         self.destroy()
     
     def open_pdf(self, event=None):
@@ -348,6 +352,11 @@ class note_menu(tk.Frame):
             print("No pdf selected.")
     
 class main_menu(tk.Frame):
+    """ Class for the main menu. Child of tk.Frame 
+        to facilitate screen switching. Provides 
+        functionality for choosing from PDF documents and
+        associated notes to open in the editor. 
+        """
     def __init__(self, container, app):
 
         # Establish Parent and essential vars
@@ -390,7 +399,7 @@ class main_menu(tk.Frame):
         self.pdf_selector_frame = tk.Frame(self.note_frame)
         self.pdf_label = tk.Label(self.pdf_selector_frame, text="Select a PDF file from the dropdown.", font=("Helvetica", 18))
         self.pdf_label.pack(fill="both")
-        self.pdf_options = self.application.server.get_pdfs()
+        self.pdf_options = self.application.server.get_pdfs() # get list of options from server
         self.pdf_select = ttk.Combobox(self.pdf_selector_frame, values=self.pdf_options, state="readonly")
         self.pdf_select.pack(fill="both", padx=100)
         self.pdf_select.set("--Select a PDF--")
@@ -433,16 +442,16 @@ class main_menu(tk.Frame):
         self.note_frame = None
 
     def open_note(self, event=None):
-
+        # sets up note taking environment
         self.note_name = self.note_select.get().strip()
         if self.pdf != "": # cant open note w/o a pdf to associate
             if self.note_name != "": # pickup when no note name selected or entered
                 self.note_dict = self.application.server.get_note_file(self.pdf, self.note_name) # get note dict, creates new if note does not exist
-                if "header" not in self.note_dict:
+                if "header" not in self.note_dict: # creates a new note dict if entered name doesn't already exist
                     self.note_dict["header"] = "Header"
                     self.note_dict["notes"] = []
 
-
+                # tuple for note menu object
                 packed = (self.note_name, self.note_dict, self.pdf, self.pdf_path)
 
                 # init note menu with note_json
@@ -461,10 +470,12 @@ class main_menu(tk.Frame):
         else:
             print("No pdf selected.")
 
+    # updates selected note
     def note_selected(self, event=None):
         self.note_name = self.note_select.get()
         print(f"Selected note {self.note_name}")
 
+    # updates selected pdf, gets path, and updates note options accroding to selected pdf
     def pdf_selected(self, event=None):
         # get selected pdf
         pdf_name = self.pdf_select.get()
@@ -479,15 +490,22 @@ class main_menu(tk.Frame):
         [print(x) for x in self.note_options]
         self.note_select.config(values=self.note_options) # ensure list is reset
 
+    # set user var, called externally by login
     def set_user(self, name):
         self.current_user = name
         self.header.config(text=f"Welcome {self.current_user}. Select a PDF and Note to begin!")
 
+    # logout function, resets user var and raises login screen
     def logout(self, event=None):
         self.current_user = "temp" # reset to default val
         self.application.show(self.application.login_screen)
 
+
 class tips(tk.Frame):
+    """ Class for the SQ3R method tips. Displays
+        short blurbs for ach step, and provides ability to
+        page between them. Resizes text to fit within the screen.
+    """
     def __init__(self, container):
         super().__init__(container)
         #Text for each section
@@ -518,14 +536,16 @@ class tips(tk.Frame):
         self.text.grid(row=0, column=1, sticky="nsew")
         self.text.bind("<Configure>", self.update_wrap)
 
+    # Function for stepping through the tips
     def iter(self, i, event=None):
         self.tips_iter = (self.tips_iter + i)%5
         self.text.config(text=self.tips_list[self.tips_iter])
-
+    # Function for automatic text wrapping updating
     def update_wrap(self, event):
         # Set wraplength to a fraction of the current window width
         self.text.config(wraplength=event.width - 40)
 
+# MAIN FUNCTION FOR DEVELOPMENT TESTING -- USES OFFLINE SERVER COMPONENT
 """
 def main():
     serverObject = local_document_storage("TestDummies", "TestStorage")
