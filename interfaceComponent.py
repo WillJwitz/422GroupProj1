@@ -1,3 +1,10 @@
+"""
+Team 2
+SQ3R ARA Interface Component
+William Jurewitz, Hayden Houlihan, Kaleo Montero
+Last edited --- 5/4/2025
+"""
+
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
@@ -18,7 +25,7 @@ class app_window(tk.Tk):
     def __init__(self, serverComp, error_message : str = None):
         super().__init__()
 
-        self.server = serverComp
+        self.server = serverComp # reference to server component
 
         self.title("SQ3R Note-Taker") # Set window title
         self.geometry("800x450") # Set window default dimensions
@@ -28,14 +35,10 @@ class app_window(tk.Tk):
         self.container.grid_rowconfigure(0, weight=1)
         self.container.grid_columnconfigure(0, weight=1)
 
-        self.scenes = {}
-        '''
-        self.blank = tk.Frame()
-        self.blank.grid(row=0, column=0, sticky="nsew")
-        '''
+        # Creating login screen object (tk.Frame)
         self.login_screen = login(self.container, self)
         self.login_screen.grid(row=0, column=0, sticky="nsew")
-        
+        # Creating main menu screen object (tk.Frame)
         self.main_menu = main_menu(self.container, self)
         self.main_menu.grid(row=0, column=0, sticky="nsew")
         
@@ -45,16 +48,24 @@ class app_window(tk.Tk):
         if not error_message is None:
             messagebox.showwarning("SQ3R Note-Taker", error_message)
 
+    # Raises frame object to top of screen, effectively switching menus
     def show(self, screen):
         screen.tkraise()
         if screen == self.main_menu:
-            self.main_menu.selector_reset()
+            self.main_menu.selector_reset() # special reset function for main to ensure selections are reset
 
 
 class login(tk.Frame):
+    """ Class for the login menu.
+        Child of tk.Frame as that
+        facilitates the screen switching
+        mechanism. Provides basic drop-down
+        to select from list of users.
+    """
     def __init__(self, container, app):
+        # tk.Frame object init
         super().__init__(container)
-        self.application = app
+        self.application = app # reference to app_window calling object to reach server function calls
 
         # Frame for objects to sit in, helps to center
         self.entry_field = tk.Frame(self)
@@ -63,43 +74,53 @@ class login(tk.Frame):
         self.prompt = tk.Label(self.entry_field, text="Select User", font=("Helvetica", 20))
         self.prompt.pack()
 
-        self.username = ""
+        # Var for user selection options 
         self.user_opt = ["Student1", "Student2", "Student3"]
+        # Drop down to present options
         self.user_field = ttk.Combobox(self.entry_field, values=self.user_opt, state="readonly")
         self.user_field.pack()
-
+        # Button to log in
         self.login_butt = tk.Button(self.entry_field, text="Login", command=self.submit_user)
         self.login_butt.pack()
-
+        # Label to display potential error messages if authentication fails
         self.error = tk.Label(self.entry_field, text="")
         self.error.pack()
 
         self.entry_field.pack(expand=True)
 
         self.user_field.bind("<Return>", self.submit_user)
-        self.user_field.focus_set()
+        self.user_field.focus_set() # Start program with user selection 'in focus'
 
     def submit_user(self, event=None):
-        
+        # Get user variable selected
         user_entered = self.user_field.get().strip()
        
-        if user_entered != "":
-            auth = self.application.server.authenticate(user_entered)
-            if auth:
+        if user_entered != "": # If something was actually selected, not default submitted
+            auth = self.application.server.authenticate(user_entered) # authenticate with server component
+            if auth: # successful authentication
                 # display main menu
                 self.application.main_menu.set_user(user_entered)
                 self.application.show(self.application.main_menu)
-            else:
+            else: # unsuccessful authentication
+                # present error
                 self.error.config(text="Login Error, User authentication failed, try again.")
                 raise Exception("Something occured when authenticating.")
         else:
             self.error.config(text="Login Error, enter a valid name.")
     
 class note_menu(tk.Frame):
+    """ Class for note taking menu GUI.
+        tk.Frame child to facilitate screen switching.
+        This menu contains the primary functionality for taking notes.
+        Allows user to have a general header, along with a dynamic set
+        of subheaders, each with their own unique note body.
+        Facilitates numerous subheadings with a drop down, plus, and 
+        minus buttons. Save and <<< button used to save files to server,
+        and return the main menu."""
+    
     def __init__(self, container, app, note: tuple):
         super().__init__(container)
-        self.application = app
-        self.container = container
+        self.application = app # app_window reference
 
         #Separate note file name and dict containing notes.
         self.note = note[1] # dict
@@ -114,8 +135,8 @@ class note_menu(tk.Frame):
         self.sub_list = list(self.notes_dict.keys()) # list of keys aka subheaders
         self.current = "" # set currently editing to startup val
 
-        self.just_typed = [""] # array to store whatever was just in the list
-        self.sub_var = tk.StringVar()
+        self.just_typed = [""] # array to store what was typed into subheading selection
+        self.sub_var = tk.StringVar() # var to track what is in entryfield
         self.sub_var.trace_add("write", self.on_type)
 
         #Font Sizes
@@ -173,7 +194,6 @@ class note_menu(tk.Frame):
 
         #Create container for text fields.
         self.text_container = tk.Frame(self)
-
         self.text_container.grid_rowconfigure(0, weight=0)
         self.text_container.grid_rowconfigure(1, weight=0)
         self.text_container.grid_rowconfigure(2, weight=1)
@@ -192,43 +212,47 @@ class note_menu(tk.Frame):
         self.sub_frame.columnconfigure(1, minsize=10)
         self.sub_frame.columnconfigure(2, minsize=10)
         self.sub_frame.grid(row=1, column=0, sticky="nsew", padx=10)
+        # Selection field for subheadings
         self.subheader_field = ttk.Combobox(self.sub_frame, textvariable=self.sub_var, font=('Helvetica', self.subheader_size), values=self.sub_list)
-        self.subheader_field.set("Select note section, or type new subheader and press enter.")
+        self.subheader_field.set("Select note section, or type new subheader and press enter.") # Default text
         self.subheader_field.grid(row=0, column=0, padx=10, pady=5, sticky="ew")
         self.subheader_field.bind("<<ComboboxSelected>>", self.sub_select)
         self.subheader_field.bind("<Return>", self.sub_select)
         
 
-        # button to make new note file
+        # Button to make new subheading and note
         self.add_butt = tk.Button(self.sub_frame, text = "+", font = ('Helvetica', 10), command=self.add_subnote)
         self.add_butt.grid(row=0, column=1, sticky="nsew", padx=2)
         
-        # button to delete current note file
+        # Button to delete current subheading and note
         self.delete_butt = tk.Button(self.sub_frame, text = "-", font = ('Helvetica', 10), command=self.remove_subnote)
         self.delete_butt.grid(row=0, column=2, sticky="nsew", padx=2)
         
-        #Create note field
+        # Create note field
         self.note_field = tk.Text(self.text_container, font=('Helvetica', self.note_body_size), wrap="word", height=10)
         self.note_field.insert(tk.END, "")
         self.note_field.grid(row=2, column=0, pady=5, sticky="nsew", padx=10)
-
+  
         if self.notes_dict:
             self.subheader_field.set(list(self.notes_dict.keys())[0])
             self.note_field.insert(tk.END, self.notes_dict[list(self.notes_dict.keys())[0]])
             self.current = list(self.notes_dict.keys())[0]
 
+    # Function to get called when subheading field is typed in or changed
     def on_type(self, *args):
-        new = self.subheader_field.get()
-        if new != "" and new not in self.sub_list:
-            self.just_typed[0] = new
+        new = self.subheader_field.get() # get new entry data
+        if new != "" and new not in self.sub_list: # if it is a unique new subheader
+            self.just_typed[0] = new # set var to what was just typed
 
+    # Called by + button
     def add_subnote(self, event=None):
         selected = self.subheader_field.get().strip() # new selected or entered subheader
-        body = self.note_field.get("1.0", "end-1c")
+        body = self.note_field.get("1.0", "end-1c") # current note body
+        # Save current subheading and body if it is not the default or empty
         if selected != "Select note section, or type new subheader and press enter." and selected != "":
-
             self.notes_dict[selected] = body
         
+        # Reset entry area for new subheading
         self.subheader_field.set("")
         self.note_field.delete("1.0", tk.END)
         self.note_field.insert(tk.END, "")
@@ -237,11 +261,13 @@ class note_menu(tk.Frame):
         self.sub_list = list(self.notes_dict.keys())
         self.subheader_field.config(values=self.sub_list)
 
+    # Removes a subheading and related note body
     def remove_subnote(self, event=None):
-        selected = self.subheader_field.get().strip() # deleting this one
 
+        selected = self.subheader_field.get().strip() # deleting this subheading
         del self.notes_dict[selected] # remove it from internal storage dict
         
+        # Reset entry area
         self.subheader_field.set("")
         self.note_field.delete("1.0", tk.END)
         self.note_field.insert(tk.END, "")
@@ -250,25 +276,27 @@ class note_menu(tk.Frame):
         self.sub_list = list(self.notes_dict.keys())
         self.subheader_field.config(values=self.sub_list)
 
+    # Called when a subheading is selected from the drop down
     def sub_select(self, event=None):
         selected = self.subheader_field.get().strip() # new selected or entered subheader
         body = self.note_field.get("1.0", "end-1c") # potentially contains old notes
 
-        print(f"selcted: {selected}, current: {self.current}")
+        print(f"selcted: {selected}, current: {self.current}") # debug print
 
+        # Edge case
         if selected == "":
             print("Can't handle blank name")
             return
 
-        if self.current == "": # just entered or selected new note for first time in blank dict
-            if self.just_typed[0] not in self.notes_dict and self.just_typed[0] != "":
-                self.notes_dict[self.just_typed[0]] = body
-                self.just_typed[0] = ""
+        if self.current == "": # new note of some kind
+            if self.just_typed[0] not in self.notes_dict and self.just_typed[0] != "": # check if just_typed has tracked a new subheader, since it would have been overridden by selection
+                self.notes_dict[self.just_typed[0]] = body # save new note dict
+                self.just_typed[0] = "" # reset just typed var
 
-            if selected in self.notes_dict:
+            if selected in self.notes_dict: # if newly selected exits (it should) switch to view it
                 self.note_field.delete("1.0", tk.END)
                 self.note_field.insert(tk.END, self.notes_dict[selected])
-            else:
+            else: # catch case, selected should exist however if it doesn't it will be saved
                 self.notes_dict[selected] = body
             self.current = selected
 
@@ -497,6 +525,7 @@ class tips(tk.Frame):
         # Set wraplength to a fraction of the current window width
         self.text.config(wraplength=event.width - 40)
 
+"""
 def main():
     serverObject = local_server_component("TestDummies", "TestStorage")
 
@@ -506,3 +535,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+"""
