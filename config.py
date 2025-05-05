@@ -2,6 +2,8 @@ import os
 import json
 
 class config_handler():
+    #this class creates and parses config files, ensuring they always contain all relevant fields
+
     def __init__(self, path:str):
         self.path:str = path
         self.cfgs = {}

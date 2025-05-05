@@ -3,8 +3,6 @@ from pymongo import MongoClient
 import gridfs
 import os
 
-#Kaleo: pdfs path and server ip are now in config
-#but these seeemed fine as constants
 DB_NAME = "project_database"
 NOTE_COLLECTION = "user_notes"
 
@@ -18,8 +16,11 @@ class server_error(Exception):
 
 
 class mongo_server_component(abstract_server_component):
+    #A server component implementation that uses a mongo server to store notes
+    #Designed for the main online mode of use
+
     def __init__(self, pdf_cache_path: str, server_ip: str):
-        #Kaleo: reduce timeout to make startup less slow
+        #timout is lower than default to make app launch faster
         timeout = 4000 
         self.client = MongoClient(f"mongodb://{server_ip}", serverSelectionTimeoutMS = timeout)
         self.db = self.client[DB_NAME]
@@ -27,7 +28,7 @@ class mongo_server_component(abstract_server_component):
         self.pdfs_path:str = pdf_cache_path
         self.user:str|None = None
 
-        #Kaleo: basic error handling
+        #check if connection is valid, throw a server error if not
         try:
              self.client.server_info()
         except Exception as e:
@@ -35,8 +36,6 @@ class mongo_server_component(abstract_server_component):
 
 
     def authenticate(self, username: str) -> bool:
-        #drew? any input on the authentication process? (we gotta be secure)
-        #TODO: do we check with server if the username is valid?
         self.user = username
         return True
 
@@ -69,6 +68,24 @@ class mongo_server_component(abstract_server_component):
             upsert=True
         )
         return True
+
+    #extra function added to allow uploading files during server setup
+    #in the future this might be added to the abstract component, to allow for synching
+    def send_pdf(self, pdfName:str, pdfPath: str) -> bool:
+        with open(pdfPath, 'rb') as f:
+            hadOld = False
+            for file in self.fs.find({"filename": pdfName}):
+                self.fs.delete(file._id)
+                hadOld = True
+            self.fs.put(f.read(), filename = pdfName)
+            if(hadOld):
+                print("uploaded updated pdf")
+            else:
+                print("uploaded new pdf")
+    
+    def delete_all_pdfs(self):
+        for file in self.fs.find():
+            self.fs.delete(file._id)
     
     def close(self):
         self.client.close()

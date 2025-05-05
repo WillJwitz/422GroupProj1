@@ -3,6 +3,10 @@ import copy
 import os
 
 class memory_server_component(abstract_server_component):
+    #A server component implementation that uses local files to store notes
+    #Designed mainly for testing
+    #But is the fallback for offline mode if local storage is disabled in the settings
+
     def __init__(self, pdfs_path: str):
         super().__init__()
         self.data = {}
@@ -62,5 +66,6 @@ class memory_server_component(abstract_server_component):
             noteGroups[strPdf] = {}
         
         notes = noteGroups[strPdf]
+        #copy so that edits to the original don't destroy saved data
         notes[strFile] = copy.deepcopy(json_note)
         return False

@@ -4,11 +4,13 @@ import json
 from typing import Any
 
 class local_server_component(abstract_server_component):
+    #A server component implementation that uses local files to store notes
+    #Designed for use in offline mode
+
     def __init__(self, pdfs_path: str, storage_path:str ):
         super().__init__()
         self.data:dict = {}
 
-        #TODO: update names when further in project
         self.storage_path:str = storage_path
         self.pdfs_path:str = pdfs_path
 
@@ -56,15 +58,20 @@ class local_server_component(abstract_server_component):
             return super().get_pdf_path(strFileName)
     
     def get_notes(self, strPdf: str):
-        #TODO error checking
+        #TODO more robust error checking
         try:
             print(self.notes_path(strPdf))
             path = self.notes_path(strPdf)
-            files = [file for file in os.listdir(path) if os.path.isfile(path+'/'+file)]
-            print("files: ")
-            [print(file) for file in files]
-            # split file name
-            return [os.path.splitext(file)[0] for file in files]
+            try:
+                os.mkdir(path)
+                print("created path for notes")
+                return super().get_notes(strPdf)
+            except:
+                files = [file for file in os.listdir(path) if os.path.isfile(path+'/'+file)]
+                print("files: ")
+                [print(file) for file in files]
+                # split file name
+                return [os.path.splitext(file)[0] for file in files]
         except IOError as e: 
             print("error finding notes")
             print(e)
@@ -80,6 +87,7 @@ class local_server_component(abstract_server_component):
             return super().get_note_file(strPdf, strFile)
     
     def send_note(self, strPdf: str, strFile: str, json_note: dict[str, Any]) -> bool:
+        #ensure path exists before saving note
         try:
             os.mkdir(self.notes_path(strPdf))
         except:
