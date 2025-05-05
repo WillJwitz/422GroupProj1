@@ -1,6 +1,8 @@
 # 422GroupProj1
 # Team Sprinkles: Sawyer Christenssen, Drew Christie, Hayden Houlihan, William Jurewitz, Kaleo Montero
 SQ3R Note Taking and PDF Association
+May 5, 2025
+CS 422/522 Programming Assignment
 
 ## Overview
 
