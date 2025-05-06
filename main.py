@@ -3,7 +3,7 @@ Team 2: Team Sprinkles
 Main function
 Entrypoint Module
 Hayden Houlihan, Kaleo Montero
-Last edited --- 5/4/2025
+Last edited --- 5/5/2025
 """
 
 from abstractDocumentStorage import abstract_document_storage
@@ -16,6 +16,7 @@ from defaultConfigs import create_default_config
 def main():
     #local pdfs path
     pdfs_path:str = "TestDummies"
+    local_notes:str = "Notes Data"
 
     server:abstract_document_storage = memory_document_storage(pdfs_path)
     error: str = None
@@ -43,10 +44,16 @@ def main():
                 error = error + "\nRunning in local mode"
                 
                 print("saving data locally")
-                server = local_document_storage(pdfs_path, "Notes Data")
+                server = local_document_storage(pdfs_path, local_notes)
             else:
                 #make error message for user more scary
                 error = "WARNING: no server connection, data will NOT be saved!"
+    elif config["allow_local"]:
+        #local is enabled but server is not.
+        #local is assumed to be the default mode of operation
+        server = local_document_storage(pdfs_path, local_notes)
+    else:
+        error = "WARNING: storage not configured, data will NOT be saved!"
 
     #launch app with the chosen server, and notify user of error if present
     win = app_window(server, error)
